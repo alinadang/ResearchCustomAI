@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CaseFlow — Research Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f8f8f6;
+    --surface: #ffffff;
+    --surface2: #f3f4f6;
+    --border: #e5e7eb;
+    --border2: #d1d5db;
+    --accent: #16a34a;
+    --accent-bg: #dcfce7;
+    --accent2: #6366f1;
+    --accent2-bg: #ede9fe;
+    --accent3: #dc2626;
+    --accent3-bg: #fee2e2;
+    --warning: #d97706;
+    --warning-bg: #fef3c7;
+    --text: #111827;
+    --text2: #374151;
+    --muted: #6b7280;
+    --dim: #9ca3af;
+  }
+
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 52px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 17px;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+
+  .logo-dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
+  }
+
+  .topbar-nav { display: flex; gap: 2px; }
+
+  .nav-pill {
+    padding: 5px 13px;
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .nav-pill:hover { background: var(--surface2); color: var(--text); }
+  .nav-pill.active { background: var(--surface2); color: var(--accent2); }
+
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+  .project-badge {
+    font-size: 11px;
+    color: var(--muted);
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--surface2);
+  }
+
+  .avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), #a855f7);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+  }
+
+  /* ── WORKSPACE ── */
+  .workspace {
+    display: grid;
+    grid-template-columns: 300px 1fr 310px;
+    flex: 1;
+    overflow: hidden;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* ════════════════════
+     PANEL 1 — SOURCES
+  ════════════════════ */
+  .panel-sources {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .panel-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .panel-badge {
+    font-size: 10px;
+    color: var(--muted);
+    background: var(--surface2);
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  .drop-zone {
+    margin: 14px;
+    border: 1.5px dashed var(--border2);
+    border-radius: 10px;
+    padding: 20px 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    background: var(--bg);
+  }
+
+  .drop-zone:hover { border-color: var(--accent2); background: var(--accent2-bg); }
+  .drop-icon { font-size: 22px; margin-bottom: 7px; display: block; }
+
+  .drop-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .drop-sub { font-size: 10px; color: var(--muted); }
+
+  .drop-types { display: flex; gap: 4px; justify-content: center; margin-top: 9px; flex-wrap: wrap; }
+
+  .type-chip {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: var(--surface);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .file-summary-bar {
+    display: flex;
+    gap: 6px;
+    padding: 0 14px 10px;
+    flex-shrink: 0;
+  }
+
+  .fsb-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: var(--surface2);
+  }
+
+  .fsb-dot { width: 5px; height: 5px; border-radius: 50%; }
+
+  .sources-scroll { flex: 1; overflow-y: auto; padding-bottom: 12px; }
+  .sources-scroll::-webkit-scrollbar { width: 3px; }
+  .sources-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .source-group { padding: 0 14px 6px; }
+
+  .source-group-label {
+    font-size: 9px;
+    color: var(--dim);
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+    padding: 8px 2px 5px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .file-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 8px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.12s;
+    margin-bottom: 1px;
+  }
+
+  .file-item:hover { background: var(--surface2); }
+
+  .file-icon {
+    width: 26px; height: 26px;
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .file-icon.pdf { background: #fee2e2; }
+  .file-icon.doc { background: #dcfce7; }
+  .file-icon.txt { background: #ede9fe; }
+  .file-icon.csv { background: #fef3c7; }
+
+  .file-meta { flex: 1; min-width: 0; }
+  .file-name { font-size: 11px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file-size { font-size: 9px; color: var(--dim); margin-top: 1px; }
+
+  .file-status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .file-status-dot.ready { background: var(--accent); }
+  .file-status-dot.pending { background: var(--warning); }
+
+  .quick-actions {
+    padding: 10px 14px 14px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .action-btn {
+    padding: 8px 11px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.13s;
+  }
+
+  .action-btn:hover { background: var(--surface); border-color: var(--border2); }
+  .action-btn.primary { background: var(--accent2-bg); border-color: #c7d2fe; color: var(--accent2); }
+  .action-btn.primary:hover { background: #e0e7ff; }
+
+  /* ════════════════
+     PANEL 2 — CHAT
+  ════════════════ */
+  .panel-chat {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .chat-header {
+    padding: 12px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    background: var(--surface);
+  }
+
+  .chat-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 17px;
+    font-style: italic;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  .ai-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    font-style: normal;
+    color: var(--accent);
+    background: var(--accent-bg);
+    padding: 2px 7px;
+    border-radius: 3px;
+    border: 1px solid #bbf7d0;
+    letter-spacing: 0.8px;
+  }
+
+  .chat-tools { display: flex; gap: 5px; }
+
+  .tool-btn {
+    padding: 4px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+
+  .tool-btn:hover { border-color: var(--border2); color: var(--text); }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .chat-messages::-webkit-scrollbar { width: 3px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .chat-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding: 40px;
+  }
+
+  .empty-wordmark {
+    font-family: 'Syne', sans-serif;
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -2px;
+    line-height: 1;
+  }
+
+  .empty-wordmark span { color: var(--accent2); }
+
+  .empty-tagline {
+    font-family: 'Instrument Serif', serif;
+    font-size: 19px;
+    font-style: italic;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .prompt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .prompt-card {
+    padding: 13px 14px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .prompt-card:hover { border-color: var(--accent2); box-shadow: 0 1px 8px rgba(99,102,241,0.08); transform: translateY(-1px); }
+  .prompt-card-label { font-size: 9px; color: var(--accent2); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .prompt-card-text { font-size: 11px; color: var(--text2); line-height: 1.4; }
+
+  .message { display: flex; gap: 10px; max-width: 680px; }
+  .message.user { flex-direction: row-reverse; align-self: flex-end; }
+
+  .msg-avatar {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+
+  .msg-avatar.ai { background: linear-gradient(135deg, var(--accent2), #a855f7); color: white; }
+  .msg-avatar.usr { background: var(--surface2); border: 1px solid var(--border2); color: var(--muted); }
+
+  .msg-bubble {
+    padding: 11px 14px;
+    border-radius: 11px;
+    font-size: 12.5px;
+    line-height: 1.65;
+  }
+
+  .msg-bubble.ai {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    border-top-left-radius: 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .msg-bubble.usr {
+    background: var(--accent2-bg);
+    border: 1px solid #c7d2fe;
+    color: var(--text2);
+    border-top-right-radius: 2px;
+  }
+
+  .msg-citations { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+
+  .cite-chip {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: var(--accent2-bg);
+    color: var(--accent2);
+    border: 1px solid #c7d2fe;
+    cursor: pointer;
+  }
+
+  .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 2px 0; }
+  .typing-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--dim); animation: tdot 1.2s ease-in-out infinite; }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes tdot { 0%,100%{opacity:0.3;transform:translateY(0)} 50%{opacity:1;transform:translateY(-3px)} }
+
+  .chat-input-area {
+    padding: 13px 20px 16px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--surface);
+  }
+
+  .input-modes { display: flex; gap: 3px; margin-bottom: 9px; }
+
+  .mode-tab {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    color: var(--muted);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.12s;
+  }
+
+  .mode-tab:hover { color: var(--text); }
+  .mode-tab.active { background: var(--surface2); border-color: var(--border); color: var(--accent2); }
+
+  .chat-input-wrap {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 9px 10px;
+    transition: border-color 0.15s;
+  }
+
+  .chat-input-wrap:focus-within { border-color: var(--accent2); }
+
+  .chat-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    resize: none;
+    min-height: 20px;
+    max-height: 100px;
+    line-height: 1.5;
+  }
+
+  .chat-input::placeholder { color: var(--dim); }
+
+  .input-icon-btn {
+    width: 26px; height: 26px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 11px;
+    transition: all 0.12s;
+  }
+
+  .input-icon-btn:hover { border-color: var(--border2); color: var(--text); }
+
+  .send-btn {
+    width: 30px; height: 30px;
+    border-radius: 7px;
+    background: var(--accent2);
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    transition: all 0.12s;
+    flex-shrink: 0;
+  }
+
+  .send-btn:hover { background: #4f46e5; transform: scale(1.04); }
+  .input-hint { font-size: 9px; color: var(--dim); text-align: center; margin-top: 7px; }
+
+  /* ══════════════════════
+     PANEL 3 — PROGRESS
+  ══════════════════════ */
+  .panel-progress {
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .progress-scroll { flex: 1; overflow-y: auto; padding-bottom: 16px; }
+  .progress-scroll::-webkit-scrollbar { width: 3px; }
+  .progress-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* File status cards */
+  .file-status-summary {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .fss-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .fss-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+
+  .fss-card {
+    padding: 9px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    text-align: center;
+  }
+
+  .fss-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+
+  .fss-num.green { color: var(--accent); }
+  .fss-num.yellow { color: var(--warning); }
+  .fss-num.gray { color: var(--dim); }
+  .fss-label { font-size: 9px; color: var(--muted); line-height: 1.2; }
+
+  /* Section head */
+  .section-head {
+    padding: 12px 16px 6px;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .section-add {
+    font-size: 18px;
+    color: var(--dim);
+    cursor: pointer;
+    font-weight: 300;
+    line-height: 1;
+    transition: color 0.12s;
+  }
+
+  .section-add:hover { color: var(--accent2); }
+
+  /* Phase blocks */
+  .phase-block {
+    margin: 0 12px 8px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .phase-header {
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    background: var(--surface);
+    transition: background 0.12s;
+    user-select: none;
+  }
+
+  .phase-header:hover { background: var(--surface2); }
+
+  .phase-icon {
+    width: 22px; height: 22px;
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  .phase-icon.done { background: var(--accent-bg); color: var(--accent); }
+  .phase-icon.active { background: #fef3c7; }
+  .phase-icon.upcoming { background: var(--surface2); border: 1px solid var(--border); color: var(--dim); }
+
+  .phase-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .phase-meta { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+  .phase-pill {
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  .phase-pill.done { background: var(--accent-bg); color: var(--accent); border: 1px solid #bbf7d0; }
+  .phase-pill.active { background: #fef3c7; color: var(--warning); border: 1px solid #fde68a; }
+  .phase-pill.upcoming { background: var(--surface2); color: var(--dim); border: 1px solid var(--border); }
+
+  .phase-count { font-size: 10px; color: var(--dim); }
+
+  .phase-chevron { font-size: 10px; color: var(--dim); transition: transform 0.2s; }
+  .phase-chevron.open { transform: rotate(90deg); }
+
+  /* Task list */
+  .task-list { border-top: 1px solid var(--border); background: var(--bg); }
+
+  .task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+    cursor: pointer;
+  }
+
+  .task-item:last-child { border-bottom: none; }
+  .task-item:hover { background: #f0f0ee; }
+
+  .task-check {
+    width: 15px; height: 15px;
+    border-radius: 3px;
+    border: 1.5px solid var(--border2);
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+    transition: all 0.12s;
+    cursor: pointer;
+  }
+
+  .task-check.checked { background: var(--accent); border-color: var(--accent); color: white; }
+  .task-check.partial { background: var(--warning); border-color: var(--warning); color: white; font-size: 8px; }
+
+  .task-body { flex: 1; min-width: 0; }
+
+  .task-name { font-size: 11px; color: var(--text2); line-height: 1.4; }
+  .task-name.done { text-decoration: line-through; color: var(--dim); }
+
+  .task-sub {
+    font-size: 10px;
+    color: var(--dim);
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+
+  .task-file-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 9px;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  .task-tag { font-size: 9px; padding: 1px 5px; border-radius: 3px; }
+  .task-tag.urgent { background: var(--accent3-bg); color: var(--accent3); }
+  .task-tag.soon { background: #fef3c7; color: var(--warning); }
+  .task-tag.info { background: var(--accent2-bg); color: var(--accent2); }
+
+  /* Activity */
+  .activity-wrap { margin: 0 12px 12px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+
+  .activity-head {
+    padding: 9px 12px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .activity-item {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  .activity-item:last-child { border-bottom: none; }
+
+  .act-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .act-dot.new { background: var(--accent2); }
+  .act-dot.file { background: var(--accent); }
+  .act-dot.old { background: var(--border2); }
+
+  .act-text { font-size: 10px; color: var(--muted); line-height: 1.4; }
+  .act-text strong { color: var(--text2); font-weight: 400; }
+  .act-time { font-size: 9px; color: var(--dim); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo"><div class="logo-dot"></div>CaseFlow</div>
+  <nav class="topbar-nav">
+    <div class="nav-pill active">Research</div>
+    <div class="nav-pill">Projects</div>
+    <div class="nav-pill">Team</div>
+    <div class="nav-pill">Settings</div>
+  </nav>
+  <div class="topbar-right">
+    <div class="project-badge">EV Charging Use Cases · v3</div>
+    <div class="avatar">AL</div>
+  </div>
+</header>
+
+<main class="workspace">
+
+  <!-- ═══ PANEL 1: SOURCES ═══ -->
+  <aside class="panel-sources">
+    <div class="panel-header">
+      <span class="panel-label">Sources</span>
+      <span class="panel-badge">7 files</span>
+    </div>
+
+    <div class="drop-zone">
+      <span class="drop-icon">⊕</span>
+      <div class="drop-title">Drop files here</div>
+      <div class="drop-sub">or click to browse</div>
+      <div class="drop-types">
+        <span class="type-chip">PDF</span>
+        <span class="type-chip">DOCX</span>
+        <span class="type-chip">TXT</span>
+        <span class="type-chip">CSV</span>
+        <span class="type-chip">MP3</span>
+      </div>
+    </div>
+
+    <div class="file-summary-bar">
+      <div class="fsb-chip"><div class="fsb-dot" style="background:var(--accent)"></div>6 indexed</div>
+      <div class="fsb-chip"><div class="fsb-dot" style="background:var(--warning)"></div>1 processing</div>
+    </div>
+
+    <div class="sources-scroll">
+      <div class="source-group">
+        <div class="source-group-label">Research Papers <span>2</span></div>
+        <div class="file-item">
+          <div class="file-icon pdf">📄</div>
+          <div class="file-meta">
+            <div class="file-name">EV_market_analysis_2025.pdf</div>
+            <div class="file-size">2.4 MB · indexed</div>
+          </div>
+          <div class="file-status-dot ready"></div>
+        </div>
+        <div class="file-item">
+          <div class="file-icon pdf">📄</div>
+          <div class="file-meta">
+            <div class="file-name">charging_infra_report.pdf</div>
+            <div class="file-size">1.8 MB · indexed</div>
+          </div>
+          <div class="file-status-dot ready"></div>
+        </div>
+      </div>
+
+      <div class="source-group">
+        <div class="source-group-label">Interviews <span>4</span></div>
+        <div class="file-item">
+          <div class="file-icon txt">💬</div>
+          <div class="file-meta">
+            <div class="file-name">interview_sarah_k.txt</div>
+            <div class="file-size">18 KB · indexed</div>
+          </div>
+          <div class="file-status-dot ready"></div>
+        </div>
+        <div class="file-item">
+          <div class="file-icon txt">💬</div>
+          <div class="file-meta">
+            <div class="file-name">interview_mark_t.txt</div>
+            <div class="file-size">22 KB · indexed</div>
+          </div>
+          <div class="file-status-dot ready"></div>
+        </div>
+        <div class="file-item">
+          <div class="file-icon txt">💬</div>
+          <div class="file-meta">
+            <div class="file-name">interview_priya_m.txt</div>
+            <div class="file-size">15 KB · indexed</div>
+          </div>
+          <div class="file-status-dot ready"></div>
+        </div>
+        <div class="file-item">
+          <div class="file-icon txt">💬</div>
+          <div class="file-meta">
+            <div class="file-name">interview_james_r.txt</div>
+            <div class="file-size">19 KB · processing…</div>
+          </div>
+          <div class="file-status-dot pending"></div>
+        </div>
+      </div>
+
+      <div class="source-group">
+        <div class="source-group-label">Data <span>1</span></div>
+        <div class="file-item">
+          <div class="file-icon csv">📊</div>
+          <div class="file-meta">
+            <div class="file-name">survey_responses_n=140.csv</div>
+            <div class="file-size">89 KB · indexed</div>
+          </div>
+          <div class="file-status-dot ready"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <button class="action-btn primary">✦ Generate Interview Guide</button>
+      <button class="action-btn">⊞ &nbsp;Summarize All Sources</button>
+      <button class="action-btn">⊙ &nbsp;Find Common Themes</button>
+    </div>
+  </aside>
+
+  <!-- ═══ PANEL 2: CHAT ═══ -->
+  <section class="panel-chat">
+    <div class="chat-header">
+      <div class="chat-title">
+        Research Assistant
+        <span class="ai-badge">● LIVE</span>
+      </div>
+      <div class="chat-tools">
+        <button class="tool-btn">Export</button>
+        <button class="tool-btn">History</button>
+        <button class="tool-btn">⌘ K</button>
+      </div>
+    </div>
+
+    <div class="chat-messages">
+      <div class="chat-empty" id="emptyState">
+        <div class="empty-wordmark">Case<span>Flow</span></div>
+        <div class="empty-tagline">What would you like to discover today?</div>
+        <div class="prompt-grid">
+          <div class="prompt-card" onclick="loadDemo()">
+            <div class="prompt-card-label">Brainstorm</div>
+            <div class="prompt-card-text">Generate use cases from my uploaded research</div>
+          </div>
+          <div class="prompt-card">
+            <div class="prompt-card-label">Interview Prep</div>
+            <div class="prompt-card-text">Create a discovery guide for my segment</div>
+          </div>
+          <div class="prompt-card">
+            <div class="prompt-card-label">Synthesize</div>
+            <div class="prompt-card-text">Find common themes across my transcripts</div>
+          </div>
+          <div class="prompt-card">
+            <div class="prompt-card-label">Refine</div>
+            <div class="prompt-card-text">Identify gaps in my current research</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="demoMessages" style="display:none; flex-direction:column; gap:20px;">
+        <div class="message user">
+          <div class="msg-avatar usr">AL</div>
+          <div class="msg-bubble usr">What are the top 3 recurring pain points across my interview transcripts?</div>
+        </div>
+        <div class="message">
+          <div class="msg-avatar ai">✦</div>
+          <div class="msg-bubble ai">
+            Based on your 3 interview transcripts, here are the most frequently cited pain points:<br><br>
+            <strong>1. Range anxiety & charging uncertainty</strong> — All three interviewees mentioned not knowing if a charger would be available on arrival. Sarah K. called this the core adoption blocker.<br><br>
+            <strong>2. Session pricing opacity</strong> — Users find it hard to predict cost before plugging in. Mark T. compared it to a gas pump with no price per gallon.<br><br>
+            <strong>3. Fragmented app experiences</strong> — Frustration managing multiple network apps. Priya M. noted she carries 4 apps and 3 RFID cards.
+            <div class="msg-citations">
+              <span class="cite-chip">interview_sarah_k.txt</span>
+              <span class="cite-chip">interview_mark_t.txt</span>
+              <span class="cite-chip">interview_priya_m.txt</span>
+            </div>
+          </div>
+        </div>
+        <div class="message user">
+          <div class="msg-avatar usr">AL</div>
+          <div class="msg-bubble usr">How does this align with the market analysis report?</div>
+        </div>
+        <div class="message">
+          <div class="msg-avatar ai">✦</div>
+          <div class="msg-bubble ai">
+            Strong alignment on pain points 1 and 3. The market analysis cites charger uptime as a top-3 consumer concern, and notes 68% of drivers use 2+ networks — matching Priya's experience directly.<br><br>
+            Notably, <em>pricing opacity</em> is underrepresented in the report but surfaces strongly in your qualitative data — a potential differentiated insight worth pursuing.
+            <div class="msg-citations">
+              <span class="cite-chip">EV_market_analysis_2025.pdf</span>
+            </div>
+          </div>
+        </div>
+        <div class="message">
+          <div class="msg-avatar ai">✦</div>
+          <div class="msg-bubble ai">
+            <div class="typing-indicator">
+              <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <div class="input-modes">
+        <div class="mode-tab active">Chat</div>
+        <div class="mode-tab">Brainstorm</div>
+        <div class="mode-tab">Interview Guide</div>
+        <div class="mode-tab">Summarize</div>
+      </div>
+      <div class="chat-input-wrap">
+        <textarea class="chat-input" rows="1" placeholder="Ask about your research, request synthesis, or generate interview questions…"></textarea>
+        <div style="display:flex;gap:5px;align-items:center;flex-shrink:0;">
+          <button class="input-icon-btn">📎</button>
+          <button class="input-icon-btn">🎙</button>
+          <button class="send-btn" onclick="loadDemo()">↑</button>
+        </div>
+      </div>
+      <div class="input-hint">AI suggestions are grounded in your uploaded sources · Always review before using</div>
+    </div>
+  </section>
+
+  <!-- ═══ PANEL 3: PROGRESS / TASKS ═══ -->
+  <aside class="panel-progress">
+    <div class="panel-header">
+      <span class="panel-label">Progress</span>
+      <span class="panel-badge">3 open tasks</span>
+    </div>
+
+    <div class="progress-scroll">
+
+      <!-- File counts -->
+      <div class="file-status-summary">
+        <div class="fss-title">Files & Data</div>
+        <div class="fss-grid">
+          <div class="fss-card">
+            <div class="fss-num green">6</div>
+            <div class="fss-label">Ready</div>
+          </div>
+          <div class="fss-card">
+            <div class="fss-num yellow">1</div>
+            <div class="fss-label">Processing</div>
+          </div>
+          <div class="fss-card">
+            <div class="fss-num gray">3</div>
+            <div class="fss-label">Still needed</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lifecycle task list -->
+      <div class="section-head">
+        Lifecycle Tasks
+        <span class="section-add" title="Add task">+</span>
+      </div>
+
+      <!-- Phase 1: Complete -->
+      <div class="phase-block">
+        <div class="phase-header" onclick="togglePhase(this)">
+          <div class="phase-icon done">✓</div>
+          <div class="phase-title">Discovery & Scoping</div>
+          <div class="phase-meta">
+            <span class="phase-pill done">Done</span>
+            <span class="phase-count">4/4</span>
+            <span class="phase-chevron">›</span>
+          </div>
+        </div>
+        <div class="task-list" style="display:none;">
+          <div class="task-item">
+            <div class="task-check checked">✓</div>
+            <div class="task-body"><div class="task-name done">Define research scope & goals</div></div>
+          </div>
+          <div class="task-item">
+            <div class="task-check checked">✓</div>
+            <div class="task-body"><div class="task-name done">Identify target user segments</div></div>
+          </div>
+          <div class="task-item">
+            <div class="task-check checked">✓</div>
+            <div class="task-body">
+              <div class="task-name done">Upload initial research papers</div>
+              <div class="task-sub"><span class="task-file-count">📄 2 files</span></div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check checked">✓</div>
+            <div class="task-body"><div class="task-name done">Create project in CaseFlow</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 2: Complete -->
+      <div class="phase-block">
+        <div class="phase-header" onclick="togglePhase(this)">
+          <div class="phase-icon done">✓</div>
+          <div class="phase-title">Customer Discovery</div>
+          <div class="phase-meta">
+            <span class="phase-pill done">Done</span>
+            <span class="phase-count">5/5</span>
+            <span class="phase-chevron">›</span>
+          </div>
+        </div>
+        <div class="task-list" style="display:none;">
+          <div class="task-item">
+            <div class="task-check checked">✓</div>
+            <div class="task-body"><div class="task-name done">Generate interview question guide</div></div>
+          </div>
+          <div class="task-item">
+            <div class="task-check checked">✓</div>
+            <div class="task-body">
+              <div class="task-name done">Conduct 3 customer interviews</div>
+              <div class="task-sub"><span class="task-file-count">💬 3 transcripts</span></div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check checked">✓</div>
+            <div class="task-body"><div class="task-name done">Upload & index all transcripts</div></div>
+          </div>
+          <div class="task-item">
+            <div class="task-check checked">✓</div>
+            <div class="task-body"><div class="task-name done">Run AI theme extraction</div></div>
+          </div>
+          <div class="task-item">
+            <div class="task-check checked">✓</div>
+            <div class="task-body">
+              <div class="task-name done">Upload survey data (n=140)</div>
+              <div class="task-sub"><span class="task-file-count">📊 1 file</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 3: In Progress (open by default) -->
+      <div class="phase-block">
+        <div class="phase-header" onclick="togglePhase(this)">
+          <div class="phase-icon active">⚡</div>
+          <div class="phase-title">Problem Validation</div>
+          <div class="phase-meta">
+            <span class="phase-pill active">In Progress</span>
+            <span class="phase-count">2/5</span>
+            <span class="phase-chevron open">›</span>
+          </div>
+        </div>
+        <div class="task-list">
+          <div class="task-item">
+            <div class="task-check checked">✓</div>
+            <div class="task-body"><div class="task-name done">Synthesize top pain points via AI</div></div>
+          </div>
+          <div class="task-item">
+            <div class="task-check checked">✓</div>
+            <div class="task-body">
+              <div class="task-name done">Cross-reference with market report</div>
+              <div class="task-sub"><span class="task-file-count">📄 1 file</span></div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check partial">–</div>
+            <div class="task-body">
+              <div class="task-name">Conduct 2 more validation interviews</div>
+              <div class="task-sub">
+                <span class="task-file-count">💬 1/2 uploaded</span>
+                <span class="task-tag urgent">Urgent</span>
+              </div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check" onclick="checkTask(this)"></div>
+            <div class="task-body">
+              <div class="task-name">Map pain points to use case framework</div>
+              <div class="task-sub"><span class="task-tag soon">This week</span></div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check" onclick="checkTask(this)"></div>
+            <div class="task-body">
+              <div class="task-name">Write problem validation summary report</div>
+              <div class="task-sub"><span class="task-tag info">Needs AI summary</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 4: Upcoming -->
+      <div class="phase-block">
+        <div class="phase-header" onclick="togglePhase(this)">
+          <div class="phase-icon upcoming">○</div>
+          <div class="phase-title">Solution Exploration</div>
+          <div class="phase-meta">
+            <span class="phase-pill upcoming">Upcoming</span>
+            <span class="phase-count">0/4</span>
+            <span class="phase-chevron">›</span>
+          </div>
+        </div>
+        <div class="task-list" style="display:none;">
+          <div class="task-item">
+            <div class="task-check" onclick="checkTask(this)"></div>
+            <div class="task-body"><div class="task-name">Brainstorm solution concepts with AI</div></div>
+          </div>
+          <div class="task-item">
+            <div class="task-check" onclick="checkTask(this)"></div>
+            <div class="task-body">
+              <div class="task-name">Upload competitor analysis docs</div>
+              <div class="task-sub"><span class="task-file-count">📄 0/3 uploaded</span></div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-check" onclick="checkTask(this)"></div>
+            <div class="task-body"><div class="task-name">Map solutions to pain points</div></div>
+          </div>
+          <div class="task-item">
+            <div class="task-check" onclick="checkTask(this)"></div>
+            <div class="task-body"><div class="task-name">Prioritize top 3 solution directions</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 5: Upcoming -->
+      <div class="phase-block">
+        <div class="phase-header" onclick="togglePhase(this)">
+          <div class="phase-icon upcoming">○</div>
+          <div class="phase-title">Prototyping & MVP</div>
+          <div class="phase-meta">
+            <span class="phase-pill upcoming">Upcoming</span>
+            <span class="phase-count">0/3</span>
+            <span class="phase-chevron">›</span>
+          </div>
+        </div>
+        <div class="task-list" style="display:none;">
+          <div class="task-item">
+            <div class="task-check" onclick="checkTask(this)"></div>
+            <div class="task-body"><div class="task-name">Define MVP feature set</div></div>
+          </div>
+          <div class="task-item">
+            <div class="task-check" onclick="checkTask(this)"></div>
+            <div class="task-body"><div class="task-name">Build & test prototype with users</div></div>
+          </div>
+          <div class="task-item">
+            <div class="task-check" onclick="checkTask(this)"></div>
+            <div class="task-body"><div class="task-name">Document learnings & iterate</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity -->
+      <div class="section-head">Recent Activity</div>
+      <div class="activity-wrap">
+        <div class="activity-item">
+          <div class="act-dot file"></div>
+          <div>
+            <div class="act-text"><strong>interview_james_r.txt</strong> uploaded, processing…</div>
+            <div class="act-time">4 min ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="act-dot new"></div>
+          <div>
+            <div class="act-text">AI found <strong>3 new themes</strong> in Mark's interview</div>
+            <div class="act-time">22 min ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="act-dot old"></div>
+          <div>
+            <div class="act-text">Task <strong>"Cross-reference market report"</strong> completed</div>
+            <div class="act-time">1 hr ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="act-dot old"></div>
+          <div>
+            <div class="act-text"><strong>Problem Validation</strong> phase set to active</div>
+            <div class="act-time">3 hr ago</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+</main>
+
+<script>
+  function loadDemo() {
+    document.getElementById('emptyState').style.display = 'none';
+    const demo = document.getElementById('demoMessages');
+    demo.style.display = 'flex';
+  }
+
+  function togglePhase(header) {
+    const taskList = header.nextElementSibling;
+    const chevron = header.querySelector('.phase-chevron');
+    const isOpen = taskList.style.display !== 'none';
+    taskList.style.display = isOpen ? 'none' : 'block';
+    chevron.classList.toggle('open', !isOpen);
+  }
+
+  function checkTask(box) {
+    event.stopPropagation();
+    const isChecked = box.classList.toggle('checked');
+    box.textContent = isChecked ? '✓' : '';
+    const nameEl = box.closest('.task-item').querySelector('.task-name');
+    if (nameEl) nameEl.classList.toggle('done', isChecked);
+  }
+
+  document.querySelectorAll('.mode-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.nav-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+    });
+  });
+
+  const textarea = document.querySelector('.chat-input');
+  textarea.addEventListener('input', () => {
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+  });
+</script>
+</body>
+</html>
