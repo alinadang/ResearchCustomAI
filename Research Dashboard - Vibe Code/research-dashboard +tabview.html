@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARTAI — Research Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f7f8fa;
+    --surface: #ffffff;
+    --surface2: #f1f3f6;
+    --border: #e4e7ec;
+    --border2: #cdd2db;
+    --blue: #2563eb;
+    --blue-bg: #eff4ff;
+    --green: #16a34a;
+    --green-bg: #dcfce7;
+    --amber: #d97706;
+    --amber-bg: #fef3c7;
+    --red: #dc2626;
+    --red-bg: #fee2e2;
+    --text: #111827;
+    --text2: #374151;
+    --muted: #6b7280;
+    --dim: #9ca3af;
+  }
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 56px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .brand { display: flex; flex-direction: column; gap: 1px; }
+  .brand-name { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); }
+  .brand-full { font-size: 11px; font-weight: 400; color: var(--muted); }
+
+  .topbar-center { display: flex; gap: 2px; }
+  .nav-pill { padding: 5px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+  .nav-pill:hover { background: var(--surface2); color: var(--text); }
+  .nav-pill.active { background: var(--blue-bg); color: var(--blue); }
+
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .project-chip { font-size: 11px; color: var(--muted); padding: 4px 10px; border: 1px solid var(--border); border-radius: 5px; background: var(--surface2); }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; cursor: pointer; }
+
+  /* ── WORKSPACE ── */
+  .workspace { display: grid; grid-template-columns: 290px 1fr 300px; flex: 1; overflow: hidden; }
+
+  /* ══════════════════════
+     PANEL 1 — SOURCES
+  ══════════════════════ */
+  .panel-sources { background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+
+  .panel-head { padding: 14px 16px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .panel-title { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .count-chip { font-size: 10px; color: var(--muted); background: var(--surface2); padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border); }
+
+  .drop-zone { margin: 14px; border: 1.5px dashed var(--border2); border-radius: 10px; padding: 18px 12px; text-align: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; background: var(--bg); }
+  .drop-zone:hover { border-color: var(--blue); background: var(--blue-bg); }
+  .drop-icon { font-size: 18px; display: block; margin-bottom: 6px; color: var(--dim); }
+  .drop-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+  .drop-sub { font-size: 11px; color: var(--muted); }
+  .drop-types { display: flex; gap: 4px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+  .type-chip { font-size: 10px; padding: 2px 7px; border-radius: 3px; background: var(--surface); color: var(--muted); border: 1px solid var(--border); font-family: 'Roboto Mono', monospace; }
+
+  .status-row { display: flex; gap: 6px; padding: 0 14px 10px; flex-shrink: 0; }
+  .status-chip { display: flex; align-items: center; gap: 5px; font-size: 11px; padding: 3px 9px; border-radius: 4px; border: 1px solid var(--border); color: var(--muted); background: var(--surface2); }
+  .sdot { width: 6px; height: 6px; border-radius: 50%; }
+
+  .sources-scroll { flex: 1; overflow-y: auto; }
+  .sources-scroll::-webkit-scrollbar { width: 3px; }
+  .sources-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .source-group { padding: 0 14px 6px; }
+  .group-label { font-size: 10px; color: var(--dim); letter-spacing: 1px; text-transform: uppercase; padding: 8px 2px 5px; border-bottom: 1px solid var(--border); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+
+  .file-item { display: flex; align-items: center; gap: 9px; padding: 7px 8px; border-radius: 7px; cursor: pointer; transition: background 0.1s; margin-bottom: 1px; }
+  .file-item:hover { background: var(--surface2); }
+
+  .file-type-tag { font-family: 'Roboto Mono', monospace; font-size: 9px; font-weight: 500; padding: 3px 6px; border-radius: 4px; flex-shrink: 0; }
+  .file-type-tag.pdf { background: #fee2e2; color: #b91c1c; }
+  .file-type-tag.txt { background: #ede9fe; color: #6d28d9; }
+  .file-type-tag.csv { background: #fef3c7; color: #92400e; }
+
+  .file-meta { flex: 1; min-width: 0; }
+  .file-name { font-size: 11px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file-info { font-size: 10px; color: var(--dim); margin-top: 1px; }
+
+  .fdot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .fdot.ok { background: var(--green); }
+  .fdot.wait { background: var(--amber); }
+
+  .quick-actions { padding: 10px 14px 14px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+  .q-btn { padding: 8px 12px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface2); color: var(--text2); font-family: 'Roboto', sans-serif; font-size: 12px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px; transition: all 0.12s; }
+  .q-btn:hover { background: var(--surface); border-color: var(--border2); }
+  .q-btn.primary { background: var(--blue-bg); border-color: #bfdbfe; color: var(--blue); font-weight: 500; }
+  .q-btn.primary:hover { background: #dbeafe; }
+  .q-icon { width: 16px; height: 16px; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
+  .q-icon.blue { background: var(--blue); color: white; }
+  .q-icon.gray { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); }
+
+  /* ══════════════════
+     PANEL 2 — MAIN
+  ══════════════════ */
+  .panel-main { display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
+
+  /* Tab bar */
+  .tab-bar {
+    display: flex;
+    align-items: stretch;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 18px;
+    flex-shrink: 0;
+    gap: 2px;
+    height: 46px;
+  }
+
+  .tab {
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+    margin-bottom: -1px;
+  }
+
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+  .tab-spacer { flex: 1; }
+
+  .tab-tools { display: flex; align-items: center; gap: 5px; padding: 0 0 0 8px; }
+  .t-btn { padding: 5px 11px; border-radius: 5px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); font-family: 'Roboto', sans-serif; font-size: 11px; cursor: pointer; transition: all 0.12s; }
+  .t-btn:hover { border-color: var(--border2); color: var(--text); }
+
+  /* Tab panels */
+  .tab-panels { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+
+  .tab-panel { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+  .tab-panel.active { display: flex; }
+
+  /* ── CHAT TAB ── */
+  .chat-messages { flex: 1; overflow-y: auto; padding: 24px 28px; display: flex; flex-direction: column; gap: 18px; }
+  .chat-messages::-webkit-scrollbar { width: 3px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .welcome { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; text-align: center; padding: 40px; }
+  .welcome-icon { width: 48px; height: 48px; background: var(--blue); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; font-family: 'Roboto Mono', monospace; letter-spacing: 0.5px; }
+  .welcome-title { font-size: 20px; font-weight: 500; color: var(--text); }
+  .welcome-sub { font-size: 13px; color: var(--muted); max-width: 380px; line-height: 1.6; }
+
+  .starter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 460px; width: 100%; }
+  .starter { padding: 14px 16px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; transition: all 0.15s; text-align: left; }
+  .starter:hover { border-color: var(--blue); background: var(--blue-bg); }
+  .starter-label { font-size: 11px; font-weight: 700; color: var(--blue); letter-spacing: 0.5px; margin-bottom: 5px; }
+  .starter-text { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+  .msg { display: flex; gap: 10px; max-width: 640px; }
+  .msg.user { flex-direction: row-reverse; align-self: flex-end; }
+  .msg-av { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; margin-top: 2px; }
+  .msg-av.ai { background: var(--blue); color: white; font-family: 'Roboto Mono', monospace; }
+  .msg-av.usr { background: var(--surface2); border: 1px solid var(--border2); color: var(--muted); font-size: 11px; }
+  .msg-bubble { padding: 11px 14px; border-radius: 11px; font-size: 13px; line-height: 1.65; }
+  .msg-bubble.ai { background: var(--surface); border: 1px solid var(--border); color: var(--text2); border-top-left-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .msg-bubble.usr { background: var(--blue-bg); border: 1px solid #bfdbfe; color: var(--text2); border-top-right-radius: 2px; }
+
+  .insight-block { margin-top: 10px; border-radius: 7px; border: 1px solid var(--border); overflow: hidden; }
+  .insight-block-head { padding: 6px 10px; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; background: var(--surface2); color: var(--muted); border-bottom: 1px solid var(--border); }
+  .theme-row { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text2); }
+  .theme-row:last-child { border-bottom: none; }
+  .theme-bar { height: 4px; border-radius: 2px; background: var(--blue); flex-shrink: 0; }
+  .theme-label { flex: 1; }
+  .theme-count { font-family: 'Roboto Mono', monospace; font-size: 10px; color: var(--muted); }
+  .quote-block { padding: 8px 10px; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .quote-block:last-child { border-bottom: none; }
+  .quote-text { font-style: italic; color: var(--text2); border-left: 3px solid var(--blue); padding-left: 8px; margin-bottom: 4px; line-height: 1.5; }
+  .quote-attr { font-size: 10px; color: var(--muted); margin-top: 3px; }
+  .cites { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+  .cite { font-size: 10px; padding: 2px 7px; border-radius: 3px; background: var(--blue-bg); color: var(--blue); border: 1px solid #bfdbfe; cursor: pointer; font-family: 'Roboto Mono', monospace; }
+  .typing { display: flex; gap: 4px; align-items: center; padding: 3px 0; }
+  .tdot { width: 5px; height: 5px; border-radius: 50%; background: var(--dim); animation: td 1.2s ease-in-out infinite; }
+  .tdot:nth-child(2) { animation-delay: 0.2s; }
+  .tdot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes td { 0%,100%{opacity:0.3;transform:translateY(0)} 50%{opacity:1;transform:translateY(-3px)} }
+
+  /* Input */
+  .chat-input-wrap { padding: 14px 22px 18px; border-top: 1px solid var(--border); flex-shrink: 0; background: var(--surface); }
+  .input-row { display: flex; align-items: center; gap: 8px; background: var(--bg); border: 1.5px solid var(--border2); border-radius: 10px; padding: 0 12px; height: 46px; transition: border-color 0.15s; }
+  .input-row:focus-within { border-color: var(--blue); }
+  .chat-input { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-family: 'Roboto', sans-serif; font-size: 13px; }
+  .chat-input::placeholder { color: var(--dim); }
+  .input-action { background: none; border: none; color: var(--dim); cursor: pointer; font-size: 14px; padding: 4px; display: flex; align-items: center; transition: color 0.12s; }
+  .input-action:hover { color: var(--muted); }
+  .send-btn { width: 32px; height: 32px; border-radius: 8px; background: var(--blue); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.12s; flex-shrink: 0; }
+  .send-btn:hover { background: #1d4ed8; transform: scale(1.04); }
+  .input-hint { font-size: 10px; color: var(--dim); text-align: center; margin-top: 7px; }
+
+  /* ── SESSIONS TAB ── */
+  .sessions-panel { padding: 20px 24px; flex: 1; overflow-y: auto; }
+  .sessions-panel::-webkit-scrollbar { width: 3px; }
+
+  .session-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: all 0.15s; }
+  .session-card:hover { border-color: var(--blue); box-shadow: 0 1px 8px rgba(37,99,235,0.06); }
+  .session-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .session-title { font-size: 13px; font-weight: 500; color: var(--text); }
+  .session-date { font-size: 10px; color: var(--dim); font-family: 'Roboto Mono', monospace; }
+  .session-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 8px; }
+  .session-meta { display: flex; gap: 6px; }
+  .session-tag { font-size: 10px; padding: 2px 7px; border-radius: 3px; background: var(--surface2); color: var(--muted); border: 1px solid var(--border); font-family: 'Roboto Mono', monospace; }
+
+  /* ── HIGHLIGHTS TAB ── */
+  .highlights-panel { padding: 20px 24px; flex: 1; overflow-y: auto; }
+  .highlights-panel::-webkit-scrollbar { width: 3px; }
+
+  .highlight-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
+  .highlight-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .highlight-topic { font-size: 11px; font-weight: 700; color: var(--blue); letter-spacing: 0.5px; text-transform: uppercase; }
+  .highlight-source { font-size: 10px; color: var(--dim); font-family: 'Roboto Mono', monospace; }
+  .highlight-quote { font-style: italic; font-size: 13px; color: var(--text2); border-left: 3px solid var(--blue); padding-left: 10px; line-height: 1.6; margin-bottom: 6px; }
+  .highlight-attr { font-size: 11px; color: var(--muted); }
+
+  /* ── CHARTS TAB ── */
+  .charts-panel { padding: 20px 24px; flex: 1; overflow-y: auto; }
+  .charts-panel::-webkit-scrollbar { width: 3px; }
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+  .chart-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 14px; }
+  .bar-chart { display: flex; flex-direction: column; gap: 8px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; }
+  .bar-label { font-size: 11px; color: var(--text2); width: 160px; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; background: var(--blue); transition: width 0.6s ease; }
+  .bar-fill.green { background: var(--green); }
+  .bar-fill.amber { background: var(--amber); }
+  .bar-val { font-size: 11px; color: var(--muted); font-family: 'Roboto Mono', monospace; width: 30px; text-align: right; flex-shrink: 0; }
+
+  .donut-row { display: flex; gap: 16px; align-items: center; }
+  .donut-wrap { position: relative; width: 80px; height: 80px; flex-shrink: 0; }
+  .donut-wrap svg { transform: rotate(-90deg); }
+  .donut-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .donut-pct { font-size: 16px; font-weight: 700; color: var(--blue); line-height: 1; }
+  .donut-sub { font-size: 9px; color: var(--dim); }
+  .donut-legend { display: flex; flex-direction: column; gap: 6px; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--text2); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── ARTIFACTS TAB ── */
+  .artifacts-panel { padding: 20px 24px; flex: 1; overflow-y: auto; }
+  .artifacts-panel::-webkit-scrollbar { width: 3px; }
+  .artifact-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.15s; }
+  .artifact-card:hover { border-color: var(--blue); box-shadow: 0 1px 8px rgba(37,99,235,0.06); }
+  .artifact-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--blue-bg); border: 1px solid #bfdbfe; display: flex; align-items: center; justify-content: center; font-family: 'Roboto Mono', monospace; font-size: 10px; font-weight: 700; color: var(--blue); flex-shrink: 0; }
+  .artifact-body { flex: 1; min-width: 0; }
+  .artifact-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+  .artifact-meta { font-size: 11px; color: var(--muted); }
+  .artifact-action { font-size: 11px; color: var(--blue); font-weight: 500; white-space: nowrap; padding: 4px 10px; border: 1px solid #bfdbfe; border-radius: 5px; background: var(--blue-bg); }
+
+  /* ═══════════════════════════
+     PANEL 3 — TRACKER
+  ═══════════════════════════ */
+  .panel-right { background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+  .right-scroll { flex: 1; overflow-y: auto; }
+  .right-scroll::-webkit-scrollbar { width: 3px; }
+  .right-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 1px solid var(--border); }
+  .stat-cell { padding: 14px 10px; text-align: center; border-right: 1px solid var(--border); }
+  .stat-cell:last-child { border-right: none; }
+  .stat-num { font-size: 22px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+  .stat-num.blue { color: var(--blue); }
+  .stat-num.green { color: var(--green); }
+  .stat-num.amber { color: var(--amber); }
+  .stat-lbl { font-size: 10px; color: var(--muted); }
+
+  .r-section { padding: 12px 16px 6px; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); display: flex; align-items: center; justify-content: space-between; }
+  .r-add { font-size: 18px; font-weight: 300; color: var(--dim); cursor: pointer; line-height: 1; transition: color 0.12s; }
+  .r-add:hover { color: var(--blue); }
+
+  .phase { border-bottom: 1px solid var(--border); }
+  .phase-row { display: flex; align-items: center; gap: 8px; padding: 10px 16px; cursor: pointer; transition: background 0.1s; user-select: none; }
+  .phase-row:hover { background: var(--surface2); }
+  .phase-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .phase-dot.done { background: var(--green); }
+  .phase-dot.active { background: var(--blue); box-shadow: 0 0 0 3px #bfdbfe; }
+  .phase-dot.todo { background: var(--border2); }
+  .phase-name { font-size: 12px; font-weight: 500; color: var(--text2); flex: 1; }
+  .phase-right { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+  .phase-tag { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 500; }
+  .phase-tag.done { background: var(--green-bg); color: var(--green); }
+  .phase-tag.active { background: var(--blue-bg); color: var(--blue); }
+  .phase-tag.todo { background: var(--surface2); color: var(--dim); border: 1px solid var(--border); }
+  .phase-frac { font-size: 10px; color: var(--dim); font-family: 'Roboto Mono', monospace; }
+  .chevron { font-size: 10px; color: var(--dim); transition: transform 0.2s; }
+  .chevron.open { transform: rotate(90deg); }
+
+  .tasks { background: var(--bg); border-top: 1px solid var(--border); }
+  .task { display: flex; align-items: flex-start; gap: 9px; padding: 8px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
+  .task:last-child { border-bottom: none; }
+  .task:hover { background: #f0f1f4; }
+  .chk { width: 15px; height: 15px; border-radius: 3px; border: 1.5px solid var(--border2); flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; font-size: 9px; cursor: pointer; transition: all 0.12s; }
+  .chk.done { background: var(--green); border-color: var(--green); color: white; }
+  .chk.half { background: var(--amber); border-color: var(--amber); color: white; }
+  .task-body { flex: 1; }
+  .task-txt { font-size: 12px; color: var(--text2); line-height: 1.4; }
+  .task-txt.done { text-decoration: line-through; color: var(--dim); }
+  .task-meta { font-size: 10px; color: var(--dim); margin-top: 3px; display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+  .tag { font-size: 9px; padding: 1px 6px; border-radius: 3px; font-weight: 500; }
+  .tag.urgent { background: var(--red-bg); color: var(--red); }
+  .tag.soon { background: var(--amber-bg); color: var(--amber); }
+  .tag.ai { background: var(--blue-bg); color: var(--blue); }
+  .fcount { font-family: 'Roboto Mono', monospace; font-size: 9px; color: var(--muted); background: var(--surface); border: 1px solid var(--border); padding: 1px 5px; border-radius: 3px; }
+
+  .feed { margin: 8px 12px 14px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .feed-head { padding: 8px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--dim); }
+  .feed-item { display: flex; gap: 9px; align-items: flex-start; padding: 8px 12px; border-bottom: 1px solid var(--border); background: var(--bg); font-size: 11px; }
+  .feed-item:last-child { border-bottom: none; }
+  .fd { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+  .fd.blue { background: var(--blue); }
+  .fd.green { background: var(--green); }
+  .fd.gray { background: var(--border2); }
+  .feed-txt { color: var(--muted); line-height: 1.4; flex: 1; }
+  .feed-txt strong { color: var(--text2); font-weight: 500; }
+  .feed-time { font-size: 10px; color: var(--dim); white-space: nowrap; }
+
+  .section-label { padding: 12px 24px 8px; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-name">ARTAI</div>
+    <div class="brand-full">Advancing Research Translation with AI Stakeholder Insights</div>
+  </div>
+  <nav class="topbar-center">
+    <div class="nav-pill active">Research</div>
+    <div class="nav-pill">Projects</div>
+    <div class="nav-pill">Team</div>
+    <div class="nav-pill">Settings</div>
+  </nav>
+  <div class="topbar-right">
+    <div class="project-chip">EV Charging Use Cases · v3</div>
+    <div class="avatar">AL</div>
+  </div>
+</header>
+
+<main class="workspace">
+
+  <!-- ═══ PANEL 1: SOURCES ═══ -->
+  <aside class="panel-sources">
+    <div class="panel-head">
+      <span class="panel-title">Sources</span>
+      <span class="count-chip">7 files</span>
+    </div>
+
+    <div class="drop-zone">
+      <span class="drop-icon">↑</span>
+      <div class="drop-title">Drop files here</div>
+      <div class="drop-sub">or click to browse</div>
+      <div class="drop-types">
+        <span class="type-chip">PDF</span>
+        <span class="type-chip">DOCX</span>
+        <span class="type-chip">TXT</span>
+        <span class="type-chip">CSV</span>
+        <span class="type-chip">MP3</span>
+      </div>
+    </div>
+
+    <div class="status-row">
+      <div class="status-chip"><div class="sdot" style="background:var(--green)"></div>6 indexed</div>
+      <div class="status-chip"><div class="sdot" style="background:var(--amber)"></div>1 processing</div>
+    </div>
+
+    <div class="sources-scroll">
+      <div class="source-group">
+        <div class="group-label">Research Papers <span>2</span></div>
+        <div class="file-item">
+          <div class="file-type-tag pdf">PDF</div>
+          <div class="file-meta">
+            <div class="file-name">EV_market_analysis_2025.pdf</div>
+            <div class="file-info">2.4 MB · indexed</div>
+          </div>
+          <div class="fdot ok"></div>
+        </div>
+        <div class="file-item">
+          <div class="file-type-tag pdf">PDF</div>
+          <div class="file-meta">
+            <div class="file-name">charging_infra_report.pdf</div>
+            <div class="file-info">1.8 MB · indexed</div>
+          </div>
+          <div class="fdot ok"></div>
+        </div>
+      </div>
+
+      <div class="source-group">
+        <div class="group-label">Interviews <span>4</span></div>
+        <div class="file-item">
+          <div class="file-type-tag txt">TXT</div>
+          <div class="file-meta">
+            <div class="file-name">interview_sarah_k.txt</div>
+            <div class="file-info">18 KB · indexed</div>
+          </div>
+          <div class="fdot ok"></div>
+        </div>
+        <div class="file-item">
+          <div class="file-type-tag txt">TXT</div>
+          <div class="file-meta">
+            <div class="file-name">interview_mark_t.txt</div>
+            <div class="file-info">22 KB · indexed</div>
+          </div>
+          <div class="fdot ok"></div>
+        </div>
+        <div class="file-item">
+          <div class="file-type-tag txt">TXT</div>
+          <div class="file-meta">
+            <div class="file-name">interview_priya_m.txt</div>
+            <div class="file-info">15 KB · indexed</div>
+          </div>
+          <div class="fdot ok"></div>
+        </div>
+        <div class="file-item">
+          <div class="file-type-tag txt">TXT</div>
+          <div class="file-meta">
+            <div class="file-name">interview_james_r.txt</div>
+            <div class="file-info">19 KB · processing…</div>
+          </div>
+          <div class="fdot wait"></div>
+        </div>
+      </div>
+
+      <div class="source-group">
+        <div class="group-label">Data <span>1</span></div>
+        <div class="file-item">
+          <div class="file-type-tag csv">CSV</div>
+          <div class="file-meta">
+            <div class="file-name">survey_responses_n=140.csv</div>
+            <div class="file-info">89 KB · indexed</div>
+          </div>
+          <div class="fdot ok"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <button class="q-btn primary">
+        <div class="q-icon blue">✦</div>
+        Generate Interview Guide
+      </button>
+      <button class="q-btn">
+        <div class="q-icon gray">≡</div>
+        Summarize All Sources
+      </button>
+      <button class="q-btn">
+        <div class="q-icon gray">◎</div>
+        Extract Common Themes
+      </button>
+    </div>
+  </aside>
+
+  <!-- ═══ PANEL 2: MAIN TABS ═══ -->
+  <section class="panel-main">
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <div class="tab active" onclick="switchTab('chat', this)">Chat</div>
+      <div class="tab" onclick="switchTab('sessions', this)">Sessions</div>
+      <div class="tab" onclick="switchTab('highlights', this)">Highlights</div>
+      <div class="tab" onclick="switchTab('charts', this)">Charts</div>
+      <div class="tab" onclick="switchTab('artifacts', this)">Artifacts</div>
+      <div class="tab-spacer"></div>
+      <div class="tab-tools">
+        <button class="t-btn">Export</button>
+        <button class="t-btn">History</button>
+      </div>
+    </div>
+
+    <div class="tab-panels">
+
+      <!-- ── CHAT TAB ── -->
+      <div class="tab-panel active" id="tab-chat">
+        <div class="chat-messages">
+          <div class="welcome" id="welcomeState">
+            <div class="welcome-icon">AI</div>
+            <div class="welcome-title">What would you like to discover?</div>
+            <div class="welcome-sub">Ask anything about your research — find patterns, surface quotes, organize themes, or generate interview guides from your uploaded sources.</div>
+            <div class="starter-grid">
+              <div class="starter" onclick="loadDemo()">
+                <div class="starter-label">Find Patterns</div>
+                <div class="starter-text">Identify recurring themes across all interview transcripts</div>
+              </div>
+              <div class="starter" onclick="loadDemo()">
+                <div class="starter-label">Surface Quotes</div>
+                <div class="starter-text">Pull the most relevant quotes for a specific topic or pain point</div>
+              </div>
+              <div class="starter" onclick="loadDemo()">
+                <div class="starter-label">Interview Guide</div>
+                <div class="starter-text">Generate a discovery guide tailored to my research stage</div>
+              </div>
+              <div class="starter" onclick="loadDemo()">
+                <div class="starter-label">Gap Analysis</div>
+                <div class="starter-text">Identify what topics are missing from my current research</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="demoMsgs" style="display:none; flex-direction:column; gap:18px;">
+            <div class="msg user">
+              <div class="msg-av usr">AL</div>
+              <div class="msg-bubble usr">What are the most common themes across my interview transcripts?</div>
+            </div>
+            <div class="msg">
+              <div class="msg-av ai">AI</div>
+              <div class="msg-bubble ai">
+                Across your 3 indexed transcripts I found <strong>5 recurring themes</strong>. Here's how frequently each appears:
+                <div class="insight-block">
+                  <div class="insight-block-head">Theme Frequency · 3 interviews analyzed</div>
+                  <div class="theme-row"><div class="theme-bar" style="width:72px"></div><div class="theme-label">Charging reliability & uptime</div><div class="theme-count">18 mentions</div></div>
+                  <div class="theme-row"><div class="theme-bar" style="width:54px"></div><div class="theme-label">Pricing transparency</div><div class="theme-count">13 mentions</div></div>
+                  <div class="theme-row"><div class="theme-bar" style="width:46px"></div><div class="theme-label">App & network fragmentation</div><div class="theme-count">11 mentions</div></div>
+                  <div class="theme-row"><div class="theme-bar" style="width:28px"></div><div class="theme-label">Fleet & workplace use cases</div><div class="theme-count">7 mentions</div></div>
+                  <div class="theme-row"><div class="theme-bar" style="width:20px"></div><div class="theme-label">Range anxiety on long trips</div><div class="theme-count">5 mentions</div></div>
+                </div>
+                <div class="cites"><span class="cite">interview_sarah_k.txt</span><span class="cite">interview_mark_t.txt</span><span class="cite">interview_priya_m.txt</span></div>
+              </div>
+            </div>
+            <div class="msg user">
+              <div class="msg-av usr">AL</div>
+              <div class="msg-bubble usr">Show me the strongest quotes about pricing transparency.</div>
+            </div>
+            <div class="msg">
+              <div class="msg-av ai">AI</div>
+              <div class="msg-bubble ai">
+                Here are the most relevant quotes on pricing transparency from your interviews:
+                <div class="insight-block">
+                  <div class="insight-block-head">Interview Quotes · Pricing Transparency</div>
+                  <div class="quote-block">
+                    <div class="quote-text">"I don't know what I'm going to pay until after I've plugged in. It's the only purchase I make where I have zero idea of the cost upfront."</div>
+                    <div class="quote-attr">Mark T. · interview_mark_t.txt · line 84</div>
+                  </div>
+                  <div class="quote-block">
+                    <div class="quote-text">"Every network has a different pricing model — per kWh, per minute, flat session fee. I've given up trying to compare them."</div>
+                    <div class="quote-attr">Priya M. · interview_priya_m.txt · line 41</div>
+                  </div>
+                  <div class="quote-block">
+                    <div class="quote-text">"If a gas station hid the price per gallon until after you filled up, people would lose their minds. That's exactly what charging feels like."</div>
+                    <div class="quote-attr">Mark T. · interview_mark_t.txt · line 102</div>
+                  </div>
+                </div>
+                <div style="margin-top:10px; font-size:12px; color:var(--muted);">This theme is <strong style="color:var(--amber)">underrepresented in your market reports</strong> — only 1 of 2 PDF sources references pricing friction. This may be a differentiated research angle.</div>
+                <div class="cites"><span class="cite">interview_mark_t.txt</span><span class="cite">interview_priya_m.txt</span></div>
+              </div>
+            </div>
+            <div class="msg">
+              <div class="msg-av ai">AI</div>
+              <div class="msg-bubble ai"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-wrap">
+          <div class="input-row">
+            <button class="input-action" title="Attach file">+</button>
+            <input class="chat-input" type="text" placeholder="Find patterns, surface quotes, identify gaps, or generate an interview guide…" onkeydown="if(event.key==='Enter') loadDemo()" />
+            <button class="send-btn" onclick="loadDemo()">↑</button>
+          </div>
+          <div class="input-hint">Responses are grounded in your uploaded sources · Always review before finalizing</div>
+        </div>
+      </div>
+
+      <!-- ── SESSIONS TAB ── -->
+      <div class="tab-panel" id="tab-sessions">
+        <div class="sessions-panel">
+          <div class="section-label" style="padding: 0 0 12px;">Past Research Sessions</div>
+
+          <div class="session-card">
+            <div class="session-top">
+              <div class="session-title">Theme Extraction — Pricing & Transparency</div>
+              <div class="session-date">Feb 24, 2026</div>
+            </div>
+            <div class="session-desc">Analyzed 3 transcripts for pricing-related pain points. Identified "cost opacity" as a top underresearched theme across all interviews. Cross-referenced with market reports — gap confirmed.</div>
+            <div class="session-meta">
+              <span class="session-tag">3 sources</span>
+              <span class="session-tag">5 themes</span>
+              <span class="session-tag">12 quotes extracted</span>
+            </div>
+          </div>
+
+          <div class="session-card">
+            <div class="session-top">
+              <div class="session-title">Interview Guide Generation — Fleet Operators</div>
+              <div class="session-date">Feb 21, 2026</div>
+            </div>
+            <div class="session-desc">Generated a 10-question discovery guide targeting fleet & workplace charging use cases. Guide refined through 2 iterations based on prior interview findings.</div>
+            <div class="session-meta">
+              <span class="session-tag">2 sources</span>
+              <span class="session-tag">10 questions</span>
+              <span class="session-tag">exported to PDF</span>
+            </div>
+          </div>
+
+          <div class="session-card">
+            <div class="session-top">
+              <div class="session-title">Gap Analysis — Market vs. Interview Data</div>
+              <div class="session-date">Feb 18, 2026</div>
+            </div>
+            <div class="session-desc">Compared themes from 3 interviews against 2 market research PDFs. Found 3 topics surfaced in interviews that are absent from published reports: pricing opacity, RFID fragmentation, and fleet depot needs.</div>
+            <div class="session-meta">
+              <span class="session-tag">5 sources</span>
+              <span class="session-tag">3 gaps identified</span>
+            </div>
+          </div>
+
+          <div class="session-card">
+            <div class="session-top">
+              <div class="session-title">Initial Theme Scan — All Sources</div>
+              <div class="session-date">Feb 14, 2026</div>
+            </div>
+            <div class="session-desc">First pass AI analysis across uploaded research papers and interview transcripts. Identified 5 recurring themes and flagged 18 candidate quotes for review.</div>
+            <div class="session-meta">
+              <span class="session-tag">7 sources</span>
+              <span class="session-tag">5 themes</span>
+              <span class="session-tag">18 quotes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── HIGHLIGHTS TAB ── -->
+      <div class="tab-panel" id="tab-highlights">
+        <div class="highlights-panel">
+          <div class="section-label" style="padding: 0 0 12px;">Saved Interview Highlights</div>
+
+          <div class="highlight-card">
+            <div class="highlight-top">
+              <div class="highlight-topic">Pricing Transparency</div>
+              <div class="highlight-source">interview_mark_t.txt · line 84</div>
+            </div>
+            <div class="highlight-quote">"I don't know what I'm going to pay until after I've plugged in. It's the only purchase I make where I have zero idea of the cost upfront."</div>
+            <div class="highlight-attr">Mark T. · EV fleet manager, 12 vehicles</div>
+          </div>
+
+          <div class="highlight-card">
+            <div class="highlight-top">
+              <div class="highlight-topic">Network Fragmentation</div>
+              <div class="highlight-source">interview_priya_m.txt · line 41</div>
+            </div>
+            <div class="highlight-quote">"Every network has a different pricing model — per kWh, per minute, flat session fee. I've given up trying to compare them."</div>
+            <div class="highlight-attr">Priya M. · EV commuter, 3 years experience</div>
+          </div>
+
+          <div class="highlight-card">
+            <div class="highlight-top">
+              <div class="highlight-topic">Charger Reliability</div>
+              <div class="highlight-source">interview_sarah_k.txt · line 29</div>
+            </div>
+            <div class="highlight-quote">"I've driven 20 minutes out of my way to a charger that was broken. There's no reliable way to know before you get there."</div>
+            <div class="highlight-attr">Sarah K. · EV owner, suburban driver</div>
+          </div>
+
+          <div class="highlight-card">
+            <div class="highlight-top">
+              <div class="highlight-topic">Fleet Use Case</div>
+              <div class="highlight-source">interview_mark_t.txt · line 117</div>
+            </div>
+            <div class="highlight-quote">"If I could get all 12 vehicles charged overnight at the depot, I'd never need a public charger. The infrastructure just isn't there yet."</div>
+            <div class="highlight-attr">Mark T. · EV fleet manager, 12 vehicles</div>
+          </div>
+
+          <div class="highlight-card">
+            <div class="highlight-top">
+              <div class="highlight-topic">Adoption Barrier</div>
+              <div class="highlight-source">interview_sarah_k.txt · line 52</div>
+            </div>
+            <div class="highlight-quote">"My biggest hesitation recommending an EV to friends isn't range — it's the charger experience. It's just too unpredictable."</div>
+            <div class="highlight-attr">Sarah K. · EV owner, suburban driver</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CHARTS TAB ── -->
+      <div class="tab-panel" id="tab-charts">
+        <div class="charts-panel">
+          <div class="section-label" style="padding: 0 0 12px;">Research Analytics</div>
+
+          <div class="chart-card">
+            <div class="chart-title">Theme Frequency Across Interviews</div>
+            <div class="bar-chart">
+              <div class="bar-row"><div class="bar-label">Charging reliability</div><div class="bar-track"><div class="bar-fill" style="width:90%"></div></div><div class="bar-val">18</div></div>
+              <div class="bar-row"><div class="bar-label">Pricing transparency</div><div class="bar-track"><div class="bar-fill" style="width:65%"></div></div><div class="bar-val">13</div></div>
+              <div class="bar-row"><div class="bar-label">Network fragmentation</div><div class="bar-track"><div class="bar-fill" style="width:55%"></div></div><div class="bar-val">11</div></div>
+              <div class="bar-row"><div class="bar-label">Fleet & workplace</div><div class="bar-track"><div class="bar-fill green" style="width:35%"></div></div><div class="bar-val">7</div></div>
+              <div class="bar-row"><div class="bar-label">Range anxiety</div><div class="bar-track"><div class="bar-fill amber" style="width:25%"></div></div><div class="bar-val">5</div></div>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-title">Research Phase Coverage</div>
+            <div class="donut-row">
+              <div class="donut-wrap">
+                <svg width="80" height="80" viewBox="0 0 80 80">
+                  <circle cx="40" cy="40" r="30" fill="none" stroke="#e4e7ec" stroke-width="10"/>
+                  <circle cx="40" cy="40" r="30" fill="none" stroke="#2563eb" stroke-width="10" stroke-dasharray="113 75" stroke-linecap="round"/>
+                </svg>
+                <div class="donut-label">
+                  <div class="donut-pct">60%</div>
+                  <div class="donut-sub">done</div>
+                </div>
+              </div>
+              <div class="donut-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Discovery & Scoping</div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Customer Discovery</div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Problem Validation (active)</div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--border2)"></div>Solution Exploration</div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--border2)"></div>Prototyping & MVP</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-title">Interview Coverage by Topic Area</div>
+            <div class="bar-chart">
+              <div class="bar-row"><div class="bar-label">Consumer pain points</div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><div class="bar-val">4/4</div></div>
+              <div class="bar-row"><div class="bar-label">Fleet use cases</div><div class="bar-track"><div class="bar-fill amber" style="width:25%"></div></div><div class="bar-val">1/4</div></div>
+              <div class="bar-row"><div class="bar-label">Pricing & billing</div><div class="bar-track"><div class="bar-fill" style="width:75%"></div></div><div class="bar-val">3/4</div></div>
+              <div class="bar-row"><div class="bar-label">Network experience</div><div class="bar-track"><div class="bar-fill green" style="width:100%"></div></div><div class="bar-val">4/4</div></div>
+              <div class="bar-row"><div class="bar-label">Hardware/charger</div><div class="bar-track"><div class="bar-fill amber" style="width:50%"></div></div><div class="bar-val">2/4</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ARTIFACTS TAB ── -->
+      <div class="tab-panel" id="tab-artifacts">
+        <div class="artifacts-panel">
+          <div class="section-label" style="padding: 0 0 12px;">Generated Artifacts</div>
+
+          <div class="artifact-card">
+            <div class="artifact-icon">PDF</div>
+            <div class="artifact-body">
+              <div class="artifact-name">Fleet Operator Discovery Guide</div>
+              <div class="artifact-meta">Generated Feb 21 · 10 questions · 2 pages</div>
+            </div>
+            <div class="artifact-action">Download</div>
+          </div>
+
+          <div class="artifact-card">
+            <div class="artifact-icon">RPT</div>
+            <div class="artifact-body">
+              <div class="artifact-name">Theme Analysis — All Sources</div>
+              <div class="artifact-meta">Generated Feb 14 · 5 themes · 18 quotes</div>
+            </div>
+            <div class="artifact-action">View</div>
+          </div>
+
+          <div class="artifact-card">
+            <div class="artifact-icon">DOC</div>
+            <div class="artifact-body">
+              <div class="artifact-name">Gap Analysis Summary</div>
+              <div class="artifact-meta">Generated Feb 18 · 3 gaps identified · reviewed</div>
+            </div>
+            <div class="artifact-action">View</div>
+          </div>
+
+          <div class="artifact-card">
+            <div class="artifact-icon">CSV</div>
+            <div class="artifact-body">
+              <div class="artifact-name">Quotes Export — Pricing Transparency</div>
+              <div class="artifact-meta">Generated Feb 24 · 12 quotes · 3 interviewees</div>
+            </div>
+            <div class="artifact-action">Download</div>
+          </div>
+
+          <div class="artifact-card" style="border-style:dashed; opacity:0.5; cursor:default;">
+            <div class="artifact-icon" style="background:var(--surface2); border-color:var(--border); color:var(--dim);">+</div>
+            <div class="artifact-body">
+              <div class="artifact-name" style="color:var(--muted);">Problem Validation Report</div>
+              <div class="artifact-meta">Not yet generated · requires 2 more interviews</div>
+            </div>
+            <div class="artifact-action" style="opacity:0.4; cursor:default;">Pending</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-panels -->
+  </section>
+
+  <!-- ═══ PANEL 3: TRACKER ═══ -->
+  <aside class="panel-right">
+    <div class="panel-head">
+      <span class="panel-title">Tracker</span>
+      <span class="count-chip">3 open</span>
+    </div>
+
+    <div class="right-scroll">
+
+      <div class="stat-row">
+        <div class="stat-cell"><div class="stat-num blue">7</div><div class="stat-lbl">Files</div></div>
+        <div class="stat-cell"><div class="stat-num green">14</div><div class="stat-lbl">Interviews</div></div>
+        <div class="stat-cell"><div class="stat-num amber">3</div><div class="stat-lbl">Open tasks</div></div>
+      </div>
+
+      <div class="r-section">Lifecycle <span class="r-add">+</span></div>
+
+      <div class="phase">
+        <div class="phase-row" onclick="toggle(this)">
+          <div class="phase-dot done"></div>
+          <div class="phase-name">Discovery & Scoping</div>
+          <div class="phase-right"><span class="phase-tag done">Done</span><span class="phase-frac">4/4</span><span class="chevron">›</span></div>
+        </div>
+        <div class="tasks" style="display:none;">
+          <div class="task"><div class="chk done">✓</div><div class="task-body"><div class="task-txt done">Define research scope & goals</div></div></div>
+          <div class="task"><div class="chk done">✓</div><div class="task-body"><div class="task-txt done">Identify target user segments</div></div></div>
+          <div class="task"><div class="chk done">✓</div><div class="task-body"><div class="task-txt done">Upload initial research papers<div class="task-meta"><span class="fcount">2 PDF files</span></div></div></div></div>
+          <div class="task"><div class="chk done">✓</div><div class="task-body"><div class="task-txt done">Set up project workspace</div></div></div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-row" onclick="toggle(this)">
+          <div class="phase-dot done"></div>
+          <div class="phase-name">Customer Discovery</div>
+          <div class="phase-right"><span class="phase-tag done">Done</span><span class="phase-frac">5/5</span><span class="chevron">›</span></div>
+        </div>
+        <div class="tasks" style="display:none;">
+          <div class="task"><div class="chk done">✓</div><div class="task-body"><div class="task-txt done">Generate interview guide</div></div></div>
+          <div class="task"><div class="chk done">✓</div><div class="task-body"><div class="task-txt done">Conduct 3 initial interviews<div class="task-meta"><span class="fcount">3 transcripts indexed</span></div></div></div></div>
+          <div class="task"><div class="chk done">✓</div><div class="task-body"><div class="task-txt done">Run AI theme extraction</div></div></div>
+          <div class="task"><div class="chk done">✓</div><div class="task-body"><div class="task-txt done">Upload survey data<div class="task-meta"><span class="fcount">n=140, CSV</span></div></div></div></div>
+          <div class="task"><div class="chk done">✓</div><div class="task-body"><div class="task-txt done">Cross-reference market reports</div></div></div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-row" onclick="toggle(this)">
+          <div class="phase-dot active"></div>
+          <div class="phase-name">Problem Validation</div>
+          <div class="phase-right"><span class="phase-tag active">Active</span><span class="phase-frac">2/5</span><span class="chevron open">›</span></div>
+        </div>
+        <div class="tasks">
+          <div class="task"><div class="chk done">✓</div><div class="task-body"><div class="task-txt done">Synthesize top pain points</div></div></div>
+          <div class="task"><div class="chk done">✓</div><div class="task-body"><div class="task-txt done">Identify gaps vs. market reports</div></div></div>
+          <div class="task">
+            <div class="chk half" onclick="ck(event,this)">–</div>
+            <div class="task-body"><div class="task-txt">Conduct 2 more validation interviews<div class="task-meta"><span class="fcount">1/2 complete</span><span class="tag urgent">Urgent</span></div></div></div>
+          </div>
+          <div class="task">
+            <div class="chk" onclick="ck(event,this)"></div>
+            <div class="task-body"><div class="task-txt">Map themes to use case framework<div class="task-meta"><span class="tag soon">This week</span></div></div></div>
+          </div>
+          <div class="task">
+            <div class="chk" onclick="ck(event,this)"></div>
+            <div class="task-body"><div class="task-txt">Generate validation summary report<div class="task-meta"><span class="tag ai">Use AI summary</span></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-row" onclick="toggle(this)">
+          <div class="phase-dot todo"></div>
+          <div class="phase-name">Solution Exploration</div>
+          <div class="phase-right"><span class="phase-tag todo">Upcoming</span><span class="phase-frac">0/4</span><span class="chevron">›</span></div>
+        </div>
+        <div class="tasks" style="display:none;">
+          <div class="task"><div class="chk" onclick="ck(event,this)"></div><div class="task-body"><div class="task-txt">Brainstorm solutions from pain points</div></div></div>
+          <div class="task"><div class="chk" onclick="ck(event,this)"></div><div class="task-body"><div class="task-txt">Upload competitor analysis docs<div class="task-meta"><span class="fcount">0/3 uploaded</span></div></div></div></div>
+          <div class="task"><div class="chk" onclick="ck(event,this)"></div><div class="task-body"><div class="task-txt">Map solutions to validated themes</div></div></div>
+          <div class="task"><div class="chk" onclick="ck(event,this)"></div><div class="task-body"><div class="task-txt">Prioritize top 3 directions</div></div></div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-row" onclick="toggle(this)">
+          <div class="phase-dot todo"></div>
+          <div class="phase-name">Prototyping & MVP</div>
+          <div class="phase-right"><span class="phase-tag todo">Upcoming</span><span class="phase-frac">0/3</span><span class="chevron">›</span></div>
+        </div>
+        <div class="tasks" style="display:none;">
+          <div class="task"><div class="chk" onclick="ck(event,this)"></div><div class="task-body"><div class="task-txt">Define MVP feature set</div></div></div>
+          <div class="task"><div class="chk" onclick="ck(event,this)"></div><div class="task-body"><div class="task-txt">Test prototype with stakeholders</div></div></div>
+          <div class="task"><div class="chk" onclick="ck(event,this)"></div><div class="task-body"><div class="task-txt">Document findings & iterate</div></div></div>
+        </div>
+      </div>
+
+      <div class="r-section" style="margin-top:4px;">Recent Activity</div>
+      <div class="feed">
+        <div class="feed-item"><div class="fd green"></div><div class="feed-txt"><strong>interview_james_r.txt</strong> uploaded, indexing…</div><div class="feed-time">4m ago</div></div>
+        <div class="feed-item"><div class="fd blue"></div><div class="feed-txt">AI extracted <strong>3 new themes</strong> from Mark's transcript</div><div class="feed-time">22m ago</div></div>
+        <div class="feed-item"><div class="fd gray"></div><div class="feed-txt">Task <strong>"Identify gaps vs. market reports"</strong> completed</div><div class="feed-time">1h ago</div></div>
+        <div class="feed-item"><div class="fd gray"></div><div class="feed-txt"><strong>Problem Validation</strong> phase set to active</div><div class="feed-time">3h ago</div></div>
+      </div>
+
+    </div>
+  </aside>
+
+</main>
+
+<script>
+  function switchTab(name, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+  }
+
+  function loadDemo() {
+    document.getElementById('welcomeState').style.display = 'none';
+    const d = document.getElementById('demoMsgs');
+    d.style.display = 'flex';
+    document.querySelector('.chat-input').value = '';
+  }
+
+  function toggle(row) {
+    const tasks = row.nextElementSibling;
+    const chev = row.querySelector('.chevron');
+    const open = tasks.style.display !== 'none';
+    tasks.style.display = open ? 'none' : 'block';
+    chev.classList.toggle('open', !open);
+  }
+
+  function ck(e, box) {
+    e.stopPropagation();
+    const checked = box.classList.toggle('done');
+    box.classList.remove('half');
+    box.textContent = checked ? '✓' : '';
+    const txt = box.closest('.task').querySelector('.task-txt');
+    if (txt) txt.classList.toggle('done', checked);
+  }
+
+  document.querySelectorAll('.nav-pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.nav-pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
