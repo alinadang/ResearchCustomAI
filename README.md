@@ -1,73 +1,63 @@
-# React + TypeScript + Vite
+# Research Custom AI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, interactive research assistant designed to categorize and preview documents efficiently. This project features a clean React-based UI with document thumbnailing and real-time activity tracking.
 
-Currently, two official plugins are available:
+## 🚀 Getting Started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Follow these steps to set up the project locally:
 
-## React Compiler
+### Prerequisites
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Node.js**: Version 18.x or higher
+- **npm**: Version 9.x or higher
 
-## Expanding the ESLint configuration
+### Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/alinadang/ResearchCustomAI.git
+    cd ResearchCustomAI
+    ```
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+2.  **Checkout the development branch**:
+    ```bash
+    git checkout front-end-prototype-one
+    ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+3.  **Install dependencies**:
+    ```bash
+    npm install
+    ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Running the Project
+
+To start the development server:
+
+```bash
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The application will be available at `http://localhost:5173`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🛠️ Tech Stack
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **Framework**: [React 19](https://react.dev/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **PDF Rendering**: [React PDF](https://react-pdf.org/)
+
+## ✨ Key Features
+
+- **Interactive Sources**: Upload, categorize, and manage research files.
+- **Document Previews**: Render actual thumbnails of the first page of PDF documents.
+- **Activity Tracker**: Real-time logging of document interactions.
+- **Modern UI**: Sleek, responsive design with a focus on usability.
+
+## 📂 Project Structure
+
+- `src/components/`: Reusable UI components.
+- `src/components/tabs/`: Tab-specific content (Chat, History, Artifacts, etc.).
+- `src/context/`: State management (Activity, etc.).
+- `src/data/`: Mock data for development.
