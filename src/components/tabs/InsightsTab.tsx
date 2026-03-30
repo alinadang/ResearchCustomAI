@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Plus, Sparkles } from 'lucide-react';
-import { insightCategories, insightQuotes } from '../../data/mockData';
 import ChatInput from '../ChatInput';
+import { useAppContext } from '../../context/AppContext';
 
 export default function InsightsTab() {
+  const { insightCategories, insightQuotes } = useAppContext();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const filteredQuotes = activeCategory

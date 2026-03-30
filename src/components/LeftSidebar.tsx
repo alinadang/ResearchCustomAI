@@ -17,8 +17,9 @@ import {
   ChevronRight,
   Trash2,
 } from 'lucide-react';
-import { sourceFiles as initialSourceFiles, type SourceFile } from '../data/mockData';
+import { type SourceFile } from '../data/mockData';
 import FilePreviewModal from './FilePreviewModal';
+import { useAppContext } from '../context/AppContext';
 
 type SidebarTab = 'search' | 'project' | 'team' | 'settings';
 
@@ -99,8 +100,12 @@ export default function LeftSidebar({
    SOURCES PANEL (main/search tab)
    ================================================================ */
 function SourcesPanel() {
-  const [files, setFiles] = useState<SourceFile[]>(initialSourceFiles);
-  const [categories, setCategories] = useState<string[]>(['Research Papers', 'Interviews']);
+  const {
+    sourceFiles: files,
+    setSourceFiles: setFiles,
+    sourceCategories: categories,
+    setSourceCategories: setCategories,
+  } = useAppContext();
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
 

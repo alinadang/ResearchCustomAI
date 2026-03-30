@@ -7,7 +7,7 @@ import HistoryTab from './components/tabs/HistoryTab';
 import InsightsTab from './components/tabs/InsightsTab';
 import AnalyticsTab from './components/tabs/AnalyticsTab';
 import ArtifactsTab from './components/tabs/ArtifactsTab';
-import { ActivityProvider } from './context/ActivityContext';
+import { AppProvider } from './context/AppContext';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('chat');
@@ -57,7 +57,7 @@ export default function App() {
   };
 
   return (
-    <ActivityProvider>
+    <AppProvider>
       <div className="flex h-screen overflow-hidden bg-surface-secondary">
         {/* Left Sidebar */}
         <LeftSidebar 
@@ -83,6 +83,6 @@ export default function App() {
         {/* Right Sidebar */}
         <RightSidebar isOpen={rightOpen} />
       </div>
-    </ActivityProvider>
+    </AppProvider>
   );
 }

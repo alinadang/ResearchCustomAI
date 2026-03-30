@@ -1,13 +1,14 @@
-import { historySessions } from '../../data/mockData';
 import { Plus } from 'lucide-react';
+import { useAppContext } from '../../context/AppContext';
 
 export default function HistoryTab({ 
   currentSessionId, 
   onSelectSession 
-}: { 
-  currentSessionId?: string | null; 
-  onSelectSession?: (id: string | null) => void; 
+}: {
+  currentSessionId?: string | null;
+  onSelectSession?: (id: string | null) => void;
 }) {
+  const { historySessions } = useAppContext();
   return (
     <div className="flex flex-1 flex-col">
       <div className="flex-1 overflow-y-auto px-6 py-6 border-b border-border-light">

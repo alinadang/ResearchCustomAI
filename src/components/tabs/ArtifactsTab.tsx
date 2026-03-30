@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Download, Eye } from 'lucide-react';
-import { artifacts, type Artifact } from '../../data/mockData';
+import { type Artifact } from '../../data/mockData';
 import ChatInput from '../ChatInput';
 import ArtifactPreviewModal from '../ArtifactPreviewModal';
+import { useAppContext } from '../../context/AppContext';
 
 const badgeColors: Record<string, { bg: string; text: string }> = {
   PDF: { bg: '#fef2f2', text: '#ef4444' },
@@ -12,6 +13,7 @@ const badgeColors: Record<string, { bg: string; text: string }> = {
 };
 
 export default function ArtifactsTab() {
+  const { artifacts } = useAppContext();
   const [selectedArtifact, setSelectedArtifact] = useState<Artifact | null>(null);
 
   return (

@@ -6,11 +6,16 @@ import {
   Square,
   Edit2
 } from 'lucide-react';
-import { trackerPhases, recentActivity, type TrackerPhase, type SubTask } from '../data/mockData';
+import { type TrackerPhase, type SubTask } from '../data/mockData';
 import EditTrackerModal from './EditTrackerModal';
+import { useAppContext } from '../context/AppContext';
 
 export default function RightSidebar({ isOpen = true }: { isOpen?: boolean }) {
-  const [phases, setPhases] = useState(trackerPhases);
+  const {
+    trackerPhases: phases,
+    setTrackerPhases: setPhases,
+    activities,
+  } = useAppContext();
   const [isEditingPlan, setIsEditingPlan] = useState(false);
 
   // Recalculate open count safely
@@ -86,7 +91,7 @@ export default function RightSidebar({ isOpen = true }: { isOpen?: boolean }) {
           Recent Activity
         </h3>
         <div className="flex flex-col gap-3">
-          {recentActivity.map((event) => (
+          {activities.map((event) => (
             <div key={event.id} className="flex items-start gap-2.5">
               <span
                 className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
