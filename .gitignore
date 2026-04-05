@@ -1,0 +1,21 @@
+# Virtual environment
+venv/
+
+# Uploads (user data, not code)
+uploads/*
+# Keep the folder itself so the app doesn't crash on clone
+!uploads/.gitkeep
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment / secrets
+.env
+.env.*
+app/core/env
+
+# macOS
+.DS_Store
