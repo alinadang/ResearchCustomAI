@@ -11,9 +11,28 @@ class DukeLLMService:
     def __init__(self, api_key: str):
         self.client = OpenAI(api_key=api_key, base_url="https://litellm.oit.duke.edu/v1")
 
-    def handle_message(self, user_prompt: str, response_format: type[BaseModel] = openai_schemas.DefaultLLMOutput, system_prompt: str = ""):
+    def list_models(self):
+        """List available models from the LiteLLM/OpenAI-compatible endpoint."""
+        try:
+            res = self.client.models.list()
+            data = getattr(res, "data", None) or res
+            models = []
+            for m in data:
+                # m may be an object with `id` attr or a dict
+                if hasattr(m, "id"):
+                    models.append(m.id)
+                elif isinstance(m, dict) and "id" in m:
+                    models.append(m["id"])
+                else:
+                    models.append(m)
+            return models
+        except Exception as e:
+            return {"error": str(e)}
+
+    #def handle_message(self, user_prompt: str, response_format: type[BaseModel] = openai_schemas.DefaultLLMOutput, system_prompt: str = ""):
+    def handle_message(self, user_prompt: str, response_format: type[BaseModel] = openai_schemas.DefaultLLMOutput, system_prompt: str = "", model: str = "gpt-5"):
         response = self.client.responses.parse(
-            model="gpt-4o",
+            model=model,
             input=[
                 {
                     "role": "system", 
