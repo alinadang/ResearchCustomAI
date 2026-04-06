@@ -5,10 +5,15 @@ from app.core.config import get_settings
 
 # Creates the SQLAlchemy database engine and session
 settings = get_settings()
-postgres_url = settings.postgres_url
+db_url = settings.postgres_url or "sqlite:///./local.db"
+
+# SQLite requires connect_args={"check_same_thread": False}
+connect_args = {"check_same_thread": False} if db_url.startswith("sqlite") else {}
+
 engine = create_engine(
-    postgres_url, 
-    pool_pre_ping=True
+    db_url, 
+    pool_pre_ping=True,
+    connect_args=connect_args
 )
 
 # SessionLocal here acts as a factory for creating a new

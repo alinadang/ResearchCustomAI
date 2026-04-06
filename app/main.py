@@ -1,9 +1,19 @@
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 from app.api.upload import router as upload_router
+from app.api.auth import router as auth_router
+from app.db.database import Base, engine
+import app.db.models  # noqa: F401 – registers ORM models with Base
 
 app = FastAPI(title="Custom AI Research Assistant")
+
+# Auto-create tables on startup (no-op if they already exist)
+@app.on_event("startup")
+def create_tables():
+    Base.metadata.create_all(bind=engine)
+
 app.include_router(upload_router)
+app.include_router(auth_router)
 
 
 def custom_openapi():

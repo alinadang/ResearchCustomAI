@@ -33,9 +33,14 @@ class Settings(BaseSettings):
     debug: bool = True
 
     # Keys
-    openai_key: str
+    openai_key: Optional[str] = None   # optional — only required for AI features
     #postgres_url: str
     postgres_url: Optional[str] = None
+
+    # JWT / Auth
+    secret_key: str = "changeme-use-a-long-random-secret-in-production" # fallback
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 60 * 24  # 24 hours
 
 
 @lru_cache
