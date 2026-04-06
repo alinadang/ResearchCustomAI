@@ -44,3 +44,4 @@ class TokenData(BaseModel):
     """Decoded payload stored inside the JWT."""
     user_id: Optional[int] = None
     username: Optional[str] = None
+

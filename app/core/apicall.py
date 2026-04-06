@@ -25,8 +25,8 @@ def main():
 
 	print("Sending a test prompt...")
 	result = client.handle_message(
-		user_prompt="Say hello concisely to Duke LiteLLM from the repo example.",
-		system_prompt="You are a concise assistant."
+		user_prompt="Create a story about a car.",
+		system_prompt="You are a creative artistt."
 	)
 	print(result)
 

@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 from app.api.upload import router as upload_router
 from app.api.auth import router as auth_router
+from app.api.apicall import router as apicall_router
 from app.db.database import Base, engine
 import app.db.models  # noqa: F401 – registers ORM models with Base
 
@@ -14,6 +15,7 @@ def create_tables():
 
 app.include_router(upload_router)
 app.include_router(auth_router)
+app.include_router(apicall_router)
 
 
 def custom_openapi():
