@@ -1,63 +1,142 @@
 # Research Custom AI
 
-A modern, interactive research assistant designed to categorize and preview documents efficiently. This project features a clean React-based UI with document thumbnailing and real-time activity tracking.
+A modern, interactive research assistant that helps users organize, preview, and analyze documents, enhanced with AI-powered insights.
 
-## 🚀 Getting Started
+---
 
-Follow these steps to set up the project locally:
+## 🚀 Overview
 
-### Prerequisites
+Research Custom AI combines a sleek React frontend with a Python-based backend to create a seamless research workflow. Users can upload documents, preview content instantly, and leverage AI to generate insights and use cases.
 
-- **Node.js**: Version 18.x or higher
-- **npm**: Version 9.x or higher
+---
 
-### Installation
+## ✨ Features
 
-1.  **Clone the repository**:
-    ```bash
-    git clone https://github.com/alinadang/ResearchCustomAI.git
-    cd ResearchCustomAI
-    ```
+* 📂 **Document Management** – Upload and organize research files
+* 📄 **PDF Previews** – Instant thumbnail rendering of documents
+* ⚡ **Real-Time Activity Tracking** – Monitor interactions and workflow
+* 🤖 **AI Integration** – Generate insights and use-case suggestions
+* 🎨 **Modern UI** – Responsive design built with React and Tailwind
 
-2.  **Checkout the development branch**:
-    ```bash
-    git checkout front-end-prototype-one
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    npm install
-    ```
-
-### Running the Project
-
-To start the development server:
-
-```bash
-npm run dev
-```
-
-The application will be available at `http://localhost:5173`.
+---
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [React 19](https://react.dev/)
-- **Build Tool**: [Vite](https://vitejs.dev/)
-- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **PDF Rendering**: [React PDF](https://react-pdf.org/)
+### Frontend
 
-## ✨ Key Features
+* React (Vite)
+* TypeScript
+* Tailwind CSS
+* React PDF
+* Lucide Icons
 
-- **Interactive Sources**: Upload, categorize, and manage research files.
-- **Document Previews**: Render actual thumbnails of the first page of PDF documents.
-- **Activity Tracker**: Real-time logging of document interactions.
-- **Modern UI**: Sleek, responsive design with a focus on usability.
+### Backend
+
+* Python
+* OpenAI / GPT API
+
+---
+
+## 📦 Installation
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/alinadang/ResearchCustomAI.git
+cd ResearchCustomAI
+```
+
+---
+
+## ▶️ Running the Project
+
+### Frontend
+
+```bash
+npm install
+npm run dev
+```
+
+App runs at: **http://localhost:5173**
+
+---
+
+### Backend (AI API)
+
+#### 1. Set environment variable
+
+```bash
+export API_KEY=your_api_key
+```
+
+Windows (PowerShell):
+
+```bash
+$env:API_KEY="your_api_key"
+```
+
+#### 2. Set up virtual environment
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+#### 3. Run backend
+
+```bash
+python -m app.core.apicall
+```
+
+---
 
 ## 📂 Project Structure
 
-- `src/components/`: Reusable UI components.
-- `src/components/tabs/`: Tab-specific content (Chat, History, Artifacts, etc.).
-- `src/context/`: State management (Activity, etc.).
-- `src/data/`: Mock data for development.
+```
+├── src/
+│   ├── components/
+│   ├── components/tabs/
+│   ├── context/
+│   └── data/
+├── app/
+│   └── core/
+│       └── apicall.py
+```
+
+---
+
+## 🧠 How It Works
+
+1. Upload documents through the UI
+2. Preview and organize files instantly
+3. Interact with AI to generate insights
+4. Track activity and workflow in real time
+
+---
+
+## 🔒 Environment Variables
+
+| Variable | Description    |
+| -------- | -------------- |
+| API_KEY  | OpenAI API key |
+
+---
+
+## 📌 Future Improvements
+
+* Authentication & user accounts
+* Persistent database storage
+* Advanced document search
+* Improved AI summarization
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to open issues or submit pull requests.
+
+---
+
+## 📄 License
+
+MIT License
