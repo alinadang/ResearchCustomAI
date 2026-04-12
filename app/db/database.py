@@ -1,3 +1,4 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -5,7 +6,13 @@ from app.core.config import get_settings
 
 # Creates the SQLAlchemy database engine and session
 settings = get_settings()
-db_url = settings.postgres_url or "sqlite:///./local.db"
+
+# Resolve local.db relative to the project root (two levels above this file)
+# so the path is correct regardless of where the server is launched from.
+_project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_default_db = f"sqlite:///{os.path.join(_project_root, 'local.db')}"
+
+db_url = settings.postgres_url or _default_db
 
 # SQLite requires connect_args={"check_same_thread": False}
 connect_args = {"check_same_thread": False} if db_url.startswith("sqlite") else {}
