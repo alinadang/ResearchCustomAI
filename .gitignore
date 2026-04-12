@@ -43,3 +43,10 @@ app/core/env
 
 # macOS
 .DS_Store
+
+# Environment files (secrets)
+.env
+.env.*
+.venv/
+local.db
+.vite/

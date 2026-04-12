@@ -78,7 +78,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // localStorage so the file list (names / sizes / categories) is durable.
   const [sourceFiles, setSourceFiles] = useState<SourceFile[]>(() => {
     try {
-      const stored = window.localStorage.getItem('app_sourceFiles');
+      const stored = window.localStorage.getItem('app_sourceFiles_v2');
       return stored ? (JSON.parse(stored) as SourceFile[]) : defaultSourceFiles;
     } catch {
       return defaultSourceFiles;
@@ -89,7 +89,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       // Strip the non-serialisable File object before persisting
       const serialisable = sourceFiles.map(({ fileObject: _omit, ...rest }) => rest);
-      window.localStorage.setItem('app_sourceFiles', JSON.stringify(serialisable));
+      window.localStorage.setItem('app_sourceFiles_v2', JSON.stringify(serialisable));
     } catch (err) {
       console.error('[AppContext] Could not persist sourceFiles:', err);
     }
@@ -97,17 +97,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // ── remaining state (all fully serialisable) ─────────────────────────────
   const [sourceCategories, setSourceCategories] = useLocalStorage<string[]>(
-    'app_sourceCategories',
+    'app_sourceCategories_v2',
     ['Research Papers', 'Interviews']
   );
 
   const [trackerPhases, setTrackerPhases] = useLocalStorage<TrackerPhase[]>(
-    'app_trackerPhases',
+    'app_trackerPhases_v2',
     defaultTrackerPhases
   );
 
   const [activities, setActivities] = useLocalStorage<ActivityEvent[]>(
-    'app_activities',
+    'app_activities_v2',
     defaultActivities
   );
 
@@ -127,22 +127,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const [historySessions, setHistorySessions] = useLocalStorage<HistorySession[]>(
-    'app_historySessions',
+    'app_historySessions_v2',
     defaultHistorySessions
   );
 
   const [insightQuotes, setInsightQuotes] = useLocalStorage<InsightQuote[]>(
-    'app_insightQuotes',
+    'app_insightQuotes_v2',
     defaultInsightQuotes
   );
 
   const [insightCategories, setInsightCategories] = useLocalStorage<string[]>(
-    'app_insightCategories',
+    'app_insightCategories_v2',
     defaultInsightCategories
   );
 
   const [artifacts, setArtifacts] = useLocalStorage<Artifact[]>(
-    'app_artifacts',
+    'app_artifacts_v2',
     defaultArtifacts
   );
 

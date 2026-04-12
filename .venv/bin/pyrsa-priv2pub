@@ -1,4 +1,4 @@
-#!/Users/alyssa/ResearchCustomAI/.venv/bin/python3.10
+#!/Users/alexanderboesch/Documents/ResearchCustomAI/.venv/bin/python3
 import sys
 from rsa.util import private_to_public
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from app.api.upload import router as upload_router
 from app.api.auth import router as auth_router
@@ -7,6 +8,15 @@ from app.db.database import Base, engine
 import app.db.models  # noqa: F401 – registers ORM models with Base
 
 app = FastAPI(title="Custom AI Research Assistant")
+
+# CORS — allow the Vite dev server to reach the API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Auto-create tables on startup (no-op if they already exist)
 @app.on_event("startup")

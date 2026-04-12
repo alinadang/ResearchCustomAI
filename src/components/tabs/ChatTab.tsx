@@ -20,7 +20,7 @@ interface ActiveMessage extends ChatMessage {
 
 type CardLayout = 'full' | 'compact' | 'mini';
 
-// ─── Demo replies (delete once the real backend is wired up) ─────────────────
+// ─── Demo replies (fallback when backend is unavailable) ─────────────────
 
 const DEMO_REPLIES: string[] = [
   "Based on your uploaded sources, I identified three recurring themes: pricing opacity, network fragmentation, and depot-charging needs for fleet operators. Would you like me to drill into any of these?",
@@ -30,50 +30,43 @@ const DEMO_REPLIES: string[] = [
   "Synthesising all five sources: the top unmet need is transparent, upfront pricing. Secondary needs are charger reliability and a unified network account. I've saved these as insights — you can view them in the Insights tab.",
 ];
 
-// ─── BACKEND INTEGRATION POINT ───────────────────────────────────────────────
+// ─── BACKEND INTEGRATION ─────────────────────────────────────────────────
 //
-//  SWAP THIS FUNCTION for your real API call. The contract is:
+// Tries the real FastAPI backend first. If it fails for any reason (server
+// down, no API key, network error), falls back to demo replies so the chat
+// remains functional during development.
 //
-//    callBackend(userMessage, history, signal)  →  Promise<string>
-//
-//  • userMessage  — the raw text the user just typed
-//  • history      — conversation so far as { role, content }[] pairs
-//  • signal       — AbortSignal; reject when it fires to cancel cleanly
-//
-//  Error handling: throw any Error — the UI shows it with a Retry button.
-//
-//  ── REST example ─────────────────────────────────────────────────────────────
-//  const res = await fetch('/api/chat', {
-//    method: 'POST',
-//    signal,
-//    headers: { 'Content-Type': 'application/json' },
-//    body: JSON.stringify({ message: userMessage, history }),
-//  });
-//  if (!res.ok) throw new Error(`Server error ${res.status}`);
-//  const { reply } = await res.json();
-//  return reply;
-//
-//  ── Streaming (SSE / ReadableStream) ─────────────────────────────────────────
-//  Replace with a streaming hook. Use the same AbortSignal to cancel.
-//  Call a setState updater incrementally to append each chunk to the last
-//  assistant bubble for a typewriter effect.
-//
-// ─────────────────────────────────────────────────────────────────────────────
+// Once you set API_KEY and start the backend, real AI responses appear
+// automatically — no code changes needed.
+// ─────────────────────────────────────────────────────────────────────────
+
+import { sendMessage as apiSendMessage } from '../../api';
+
 async function callBackend(
-  _userMessage: string,
+  userMessage: string,
   _history: { role: string; content: string }[],
   signal: AbortSignal,
 ): Promise<string> {
-  // ── Simulated latency — remove once connected to a real backend ──────────
-  await new Promise<void>((resolve, reject) => {
-    const timer = setTimeout(resolve, 1400 + Math.random() * 900);
-    signal.addEventListener('abort', () => {
-      clearTimeout(timer);
-      reject(new DOMException('Request cancelled', 'AbortError'));
+  // Try the real backend first
+  try {
+    const reply = await apiSendMessage(userMessage, undefined, undefined, signal);
+    return reply;
+  } catch (err) {
+    // If aborted by user, re-throw so the UI handles it properly
+    if (err instanceof DOMException && err.name === 'AbortError') throw err;
+
+    // Backend is down or errored — fall back to demo replies
+    console.warn('[ChatTab] Backend unavailable, using demo reply:', err);
+    await new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(resolve, 800 + Math.random() * 600);
+      signal.addEventListener('abort', () => {
+        clearTimeout(timer);
+        reject(new DOMException('Request cancelled', 'AbortError'));
+      });
     });
-  });
-  return DEMO_REPLIES[Math.floor(Math.random() * DEMO_REPLIES.length)];
-  // ─────────────────────────────────────────────────────────────────────────
+    const demoReply = DEMO_REPLIES[Math.floor(Math.random() * DEMO_REPLIES.length)];
+    return `⚠️ Demo mode — backend not connected.\n\n${demoReply}`;
+  }
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

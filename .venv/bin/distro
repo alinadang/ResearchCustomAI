@@ -1,4 +1,4 @@
-#!/Users/alyssa/ResearchCustomAI/.venv/bin/python3.10
+#!/Users/alexanderboesch/Documents/ResearchCustomAI/.venv/bin/python3
 import sys
 from distro.distro import main
 if __name__ == '__main__':

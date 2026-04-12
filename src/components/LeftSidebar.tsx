@@ -16,10 +16,14 @@ import {
   Globe,
   ChevronRight,
   Trash2,
+  LogIn,
+  LogOut,
 } from 'lucide-react';
 import { type SourceFile } from '../data/mockData';
 import FilePreviewModal from './FilePreviewModal';
 import { useAppContext } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
+import AuthModal from './AuthModal';
 
 type SidebarTab = 'search' | 'project' | 'team' | 'settings';
 
@@ -74,9 +78,7 @@ export default function LeftSidebar({
         </nav>
 
         {/* User avatar */}
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold text-white">
-          AL
-        </div>
+        <UserAvatarButton />
       </div>
 
       {/* Panel content — switches based on active tab */}
@@ -105,6 +107,7 @@ function SourcesPanel() {
     setSourceFiles: setFiles,
     sourceCategories: categories,
     setSourceCategories: setCategories,
+    addActivity,
   } = useAppContext();
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -134,6 +137,28 @@ function SourcesPanel() {
         fileObject: file
       }));
       setFiles(prev => [...prev, ...newSourceFiles]);
+
+      // Upload to backend (fire-and-forget with error logging)
+      import('../api').then(({ uploadFiles: apiUploadFiles }) => {
+        apiUploadFiles(uploadedFiles)
+          .then((res) => {
+            // Update IDs to use server-assigned filenames for future reference
+            setFiles(prev =>
+              prev.map(f => {
+                const match = res.uploaded.find(u => u.original_name === f.name);
+                return match ? { ...f, serverId: match.saved_as } : f;
+              })
+            );
+            addActivity(
+              `${res.uploaded.length} file(s) uploaded to server`,
+              `${res.uploaded.length} file(s)`,
+              '#22c55e',
+            );
+          })
+          .catch((err) => {
+            console.warn('[LeftSidebar] Backend upload failed (files still available locally):', err);
+          });
+      });
     }
     
     if (fileInputRef.current) {
@@ -512,6 +537,60 @@ function FileGroup({
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   USER AVATAR BUTTON (bottom of icon rail)
+   ================================================================ */
+function UserAvatarButton() {
+  const { user, logout } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+
+  if (!user) {
+    return (
+      <>
+        <button
+          onClick={() => setShowAuthModal(true)}
+          title="Log in"
+          className="flex h-8 w-8 items-center justify-center rounded-full border border-dashed border-text-tertiary text-text-tertiary transition-colors hover:border-primary-400 hover:text-primary-600"
+        >
+          <LogIn size={14} />
+        </button>
+        {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
+      </>
+    );
+  }
+
+  const initials = user.username.slice(0, 2).toUpperCase();
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setShowMenu(!showMenu)}
+        title={user.username}
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold text-white transition-transform hover:scale-105"
+      >
+        {initials}
+      </button>
+
+      {showMenu && (
+        <div className="absolute bottom-10 left-0 z-50 w-40 rounded-lg border border-border bg-surface p-1 shadow-lg">
+          <div className="px-3 py-2 border-b border-border-light mb-1">
+            <p className="text-xs font-semibold text-text-primary truncate">{user.username}</p>
+            <p className="text-[10px] text-text-tertiary truncate">{user.email}</p>
+          </div>
+          <button
+            onClick={() => { logout(); setShowMenu(false); }}
+            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs text-red-600 transition-colors hover:bg-red-50"
+          >
+            <LogOut size={13} />
+            Sign out
+          </button>
+        </div>
+      )}
     </div>
   );
 }

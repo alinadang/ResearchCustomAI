@@ -1,4 +1,4 @@
-import { useRef, useEffect, KeyboardEvent } from 'react';
+import { useRef, useEffect, type KeyboardEvent } from 'react';
 import { ArrowRight, Square } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 
